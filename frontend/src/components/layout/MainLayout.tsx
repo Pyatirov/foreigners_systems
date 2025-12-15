@@ -1,0 +1,138 @@
+import { Box, AppBar, Tabs, Tab, Typography, Menu, MenuItem } from "@mui/material";
+import { Link, useLocation, Outlet } from "react-router-dom";
+import { useState } from "react";
+import logo from '../../assets/logo.svg'
+
+const MainLayout = () => {
+  const location = useLocation();
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const isDocumentsMenuOpen = Boolean(anchorEl);
+
+  const currentTab = {
+    "/students": 0,
+    "/passports": 1,
+    "/visas": 1,
+    "/education": 1,
+  }[location.pathname] ?? 0;
+
+  const handleDocumentsHover = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleDocumentsLeave = () => {
+    setAnchorEl(null);
+  };
+
+  return (
+    <Box sx={{ width: "100%", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          bgcolor: "#1D1D1D",
+          px: 3,
+          py: 1,
+        }}
+      >
+        {/* Лого слева */}
+        <Box sx={{ position: "absolute", left: 32, top: 16, display: "flex", alignItems: "center" }}>
+          <img src={logo} alt="Logo" style={{ height: 50, objectFit: "contain" }} />
+        </Box>
+
+        {/* Название приложения по центру */}
+        <Typography variant="h6" sx={{ color: "#fff", fontWeight: "bold", whiteSpace: "pre-line", align: "center" }}>
+          Информационно-аналитическая система УМС
+        </Typography>
+      </Box>
+      <AppBar position="static" sx={{ bgcolor: "#1D1D1D", boxShadow: 3, }} >
+        <Tabs value={currentTab} centered
+          sx={{
+            "& .MuiTab-root": {
+              fontWeight: "bold",
+              fontSize: "1rem",
+              textTransform: "none",
+              color: "#fff",
+              transition: "0.3s",
+            },
+
+            "& .MuiTab-root:hover:not(.Mui-selected)": {
+              color: "#b7a284",
+            },
+
+            "& .Mui-selected": {
+              color: "#b7a284 !important",
+            },
+
+            "& .MuiTabs-indicator": {
+              backgroundColor: "#b7a284",
+              height: 4,
+            },
+          }}
+        >
+          <Tab label="Студенты" component={Link} to="/students" disableRipple />
+          <Tab 
+            label="Документы" 
+            disableRipple
+            onMouseEnter={handleDocumentsHover}
+            sx={{ cursor: "pointer" }}
+          />
+        </Tabs>
+
+        {/* Documents Dropdown Menu */}
+        <Menu
+          anchorEl={anchorEl}
+          open={isDocumentsMenuOpen}
+          onClose={handleDocumentsLeave}
+          onMouseLeave={handleDocumentsLeave}
+          MenuListProps={{
+            onMouseLeave: handleDocumentsLeave,
+          }}
+          sx={{
+            "& .MuiPaper-root": {
+              bgcolor: "#2D2D2D",
+            },
+            "& .MuiMenuItem-root": {
+              color: "#fff",
+              fontSize: "0.95rem",
+              "&:hover": {
+                bgcolor: "#b7a284",
+              },
+            },
+          }}
+        >
+          <MenuItem 
+            component={Link} 
+            to="/passports"
+            onClick={handleDocumentsLeave}
+            sx={{fontWeight: "bold"}}
+          >
+            Паспорта
+          </MenuItem>
+          <MenuItem 
+            component={Link} 
+            to="/visas"
+            onClick={handleDocumentsLeave}
+            sx={{fontWeight: "bold"}}
+          >
+            Визы
+          </MenuItem>
+          <MenuItem 
+            component={Link} 
+            to="/education"
+            onClick={handleDocumentsLeave}
+            sx={{fontWeight: "bold"}}
+          >
+            Документ об образовании
+          </MenuItem>
+        </Menu>
+      </AppBar>
+
+      <Box sx={{ flex: 1, width: "100%", px: 3, py: 3, minHeight: 0 }}>
+        <Outlet />
+      </Box>
+    </Box>
+  );
+};
+
+export default MainLayout;
