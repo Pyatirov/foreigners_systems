@@ -37,7 +37,7 @@ export const EntityPage = <T extends Record<string, any>>({ config }: EntityPage
     setError(null);
     fetch(config.endpoint)
       .then((res) => {
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        if (!res.ok) throw new Error(`HTTP ошибка! статус: ${res.status}`);
         return res.json();
       })
       .then((d) => {
@@ -46,7 +46,7 @@ export const EntityPage = <T extends Record<string, any>>({ config }: EntityPage
       })
       .catch((err) => {
         console.error("Fetch error:", err);
-        setError(`Failed to load data: ${err.message}`);
+        setError("Ошибка загрузки данных");
         setLoading(false);
       });
   };
@@ -282,21 +282,20 @@ export const EntityPage = <T extends Record<string, any>>({ config }: EntityPage
 
       {!loading && data.length > 0 && (
         <DataTable
-  data={filteredData}
-  columns={config.columns.map(col => ({ field: String(col.field), headerName: col.headerName }))}
-  onEdit={handleEdit}
-  onDelete={handleDelete}
-  page={page}
-  onPageChange={handlePageChange}
-  rowsPerPage={10}
-  multiSelectMode={multiSelectMode}
-  selectedRows={selectedRows}
-  toggleSelectRow={toggleSelectRow}
-  toggleSelectAll={() => toggleSelectAll(filteredData.map(d => d.id || d._id))}
-  cancelMultiSelect={cancelMultiSelect}
-  confirmMultiDelete={confirmMultiDelete}
-/>
-
+          data={filteredData}
+          columns={config.columns.map(col => ({ field: String(col.field), headerName: col.headerName }))}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          page={page}
+          onPageChange={handlePageChange}
+          rowsPerPage={10}
+          multiSelectMode={multiSelectMode}
+          selectedRows={selectedRows}
+          toggleSelectRow={toggleSelectRow}
+          toggleSelectAll={() => toggleSelectAll(filteredData.map(d => d.id || d._id))}
+          cancelMultiSelect={cancelMultiSelect}
+          confirmMultiDelete={confirmMultiDelete}
+        />
       )}
 
       <EntityForm

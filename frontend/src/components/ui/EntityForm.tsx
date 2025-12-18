@@ -29,7 +29,7 @@ export const EntityForm = <T extends Record<string, any>>({
   editingItem,
 }: EntityFormProps<T>) => {
   const [form, setForm] = useState<Partial<T>>({});
-
+  const [errors, setErrors] = React.useState<Record<string, string>>({});
   // Автозаполнение при редактировании
   useEffect(() => {
     if (open && editingItem) {
@@ -59,6 +59,53 @@ export const EntityForm = <T extends Record<string, any>>({
     onSubmit(prepared as T);
     setForm({});
   };
+
+  // const handleSubmit = () => {
+  // const validationErrors = validateRequiredFields(fields, form);
+
+  //   if (Object.keys(validationErrors).length > 0) {
+  //     setErrors(validationErrors);
+  //     return;
+  //   }
+
+  //   // ✅ форма валидна — отправляем
+  //   console.log("SUBMIT", form);
+  // };
+
+
+type FieldConfig = {
+  name: string;
+  label: string;
+  type: string;
+  required?: boolean;
+};
+
+type FormErrors = Record<string, string>;
+
+function validateRequiredFields(
+    fields: FieldConfig[],
+    form: Record<string, any>
+  ): FormErrors {
+    const errors: FormErrors = {};
+
+    fields.forEach((field) => {
+      if (!field.required) return;
+
+      const value = form[field.name];
+
+      const isEmpty =
+        value === null ||
+        value === undefined ||
+        value === "" ||
+        (value instanceof Date && isNaN(value.getTime()));
+
+      if (isEmpty) {
+        errors[field.name] = "Поле обязательно для заполнения";
+      }
+    });
+
+    return errors;
+  }
 
 
   const handleClose = () => {
@@ -91,9 +138,6 @@ const renderField = (field: EntityField<T>) => {
   const showClearButton = fieldValue !== "";
 
   switch (field.type) {
-    // -------------------------------
-    // STRING FIELD
-    // -------------------------------
     case "string":
       return (
         <TextField
@@ -118,9 +162,6 @@ const renderField = (field: EntityField<T>) => {
         />
       );
 
-    // -------------------------------
-    // NUMBER FIELD
-    // -------------------------------
     case "number":
       return (
         <TextField
@@ -162,9 +203,6 @@ const renderField = (field: EntityField<T>) => {
         />
       );
 
-    // -------------------------------
-    // DATE FIELD (MUI X DatePicker)
-    // -------------------------------
     case "date": {
       const dateValue =
         fieldValue && fieldValue !== "" ? dayjs(fieldValue) : null;
@@ -188,7 +226,8 @@ const renderField = (field: EntityField<T>) => {
             textField: {
               fullWidth: true,
               margin: "normal",
-            },
+              required: field.required,
+            }
           }}
         />
       );

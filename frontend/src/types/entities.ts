@@ -1,10 +1,17 @@
-// File: src/types/entities.ts
+export interface EntityConfig<T> {
+  title: string;
+  endpoint: string;
+  columns: { field: keyof T; headerName: string }[];
+  fields: EntityField<T>[];
+  filters?: EntityFilter<T>[];
+}
+
 export interface EntityField<T = any> {
   name: keyof T;
   label: string;
-  type: 'string' | 'number' | 'date' | 'select'; // можно расширить
+  type: 'string' | 'number' | 'date' | 'select';
   required?: boolean;
-  options?: {label: string; value: any; }[]; // для select
+  options?: {label: string; value: any; }[];
 }
 
 export type FilterType = "string" | "select" | "dateRange";
@@ -26,10 +33,3 @@ export type EntityFilter<T> =
       options: SelectOption[];
     };
 
-export interface EntityConfig<T> {
-  title: string;
-  endpoint: string;
-  columns: { field: keyof T; headerName: string }[];
-  fields: EntityField<T>[];
-  filters?: EntityFilter<T>[];
-}

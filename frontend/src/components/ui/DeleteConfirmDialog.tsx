@@ -29,24 +29,24 @@ export const DeleteConfirmDialog = <T extends Record<string, any>>({
       <DialogContent>
         <Box sx={{ py: 2 }}>
           <Typography variant="body1" sx={{ mb: 2 }}>
-            Are you sure you want to delete this {config.title.toLowerCase()}?
+            Вы действительно хотите удалить {config.title.toLowerCase()}?
           </Typography>
           <Box sx={{ p: 2, bgcolor: "#f5f5f5", borderRadius: 1, borderLeft: "4px solid #d32f2f" }}>
             <Typography variant="body2" color="textSecondary">
-              Item: <strong>{itemDisplayText}</strong>
+              <strong>{itemDisplayText}</strong>
             </Typography>
           </Box>
           <Typography variant="caption" color="error" sx={{ display: "block", mt: 2 }}>
-            This action cannot be undone.
+            Это действие необратимо.
           </Typography>
         </Box>
       </DialogContent>
       <DialogActions sx={{ mr: 2, mb: 1 }}>
         <Button onClick={onClose} variant="outlined">
-          Cancel
+          Отмена
         </Button>
         <Button onClick={onConfirm} variant="contained" color="error">
-          Delete
+          Удалить
         </Button>
       </DialogActions>
     </Dialog>

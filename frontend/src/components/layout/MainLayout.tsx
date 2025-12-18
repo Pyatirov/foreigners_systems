@@ -12,7 +12,13 @@ const MainLayout = () => {
     "/students": 0,
     "/passports": 1,
     "/visas": 1,
-    "/education": 1,
+    "/education_documents": 1,
+    "/petitions": 1,
+    "/medical_reports": 1,
+    "/migration_cards": 1,
+    "/arrivals": 1,
+    "/education_agreement": 1,
+    "/termination_notices": 1,
   }[location.pathname] ?? 0;
 
   const handleDocumentsHover = (event: React.MouseEvent<HTMLElement>) => {
@@ -107,7 +113,7 @@ const MainLayout = () => {
             onClick={handleDocumentsLeave}
             sx={{fontWeight: "bold"}}
           >
-            Паспорта
+            Удостоверения личности
           </MenuItem>
           <MenuItem 
             component={Link} 
@@ -119,12 +125,69 @@ const MainLayout = () => {
           </MenuItem>
           <MenuItem 
             component={Link} 
-            to="/education"
+            to="/education_documents"
             onClick={handleDocumentsLeave}
             sx={{fontWeight: "bold"}}
           >
-            Документ об образовании
+            Документы об образовании
           </MenuItem>
+          <MenuItem 
+            component={Link} 
+            to="/petitions"
+            onClick={handleDocumentsLeave}
+            sx={{fontWeight: "bold"}}
+          >
+            Ходатайства
+          </MenuItem>
+          <MenuItem 
+            component={Link} 
+            to="/medical_reports"
+            onClick={handleDocumentsLeave}
+            sx={{fontWeight: "bold"}}
+          >
+            Медицинские заключения
+          </MenuItem>
+          <MenuItem 
+            component={Link} 
+            to="/migration_cards"
+            onClick={handleDocumentsLeave}
+            sx={{fontWeight: "bold"}}
+          >
+            Миграционные карты
+          </MenuItem>
+          <MenuItem 
+            component={Link} 
+            to="/arrival_notifications"
+            onClick={handleDocumentsLeave}
+            sx={{fontWeight: "bold"}}
+          >
+            Уведомления о прибытии
+          </MenuItem>
+          <MenuItem 
+            component={Link} 
+            to="/education_agreement"
+            onClick={handleDocumentsLeave}
+            sx={{fontWeight: "bold"}}
+          >
+            Договоры об образовании
+          </MenuItem>
+          <MenuItem
+            component={Link}
+            to="/termination_notifications"
+            onClick={handleDocumentsLeave}
+          >
+            <Typography
+              sx={{
+                fontWeight: 'bold',
+                whiteSpace: 'pre-line',
+              }}
+            >
+              Уведомления о предоставлении академического отпуска,
+              {'\n'}
+              о завершении или досрочном прекращении обучения
+            </Typography>
+          </MenuItem>
+
         </Menu>
       </AppBar>
 
