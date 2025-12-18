@@ -93,12 +93,12 @@ const AppRouter = () => (
               }} 
             />} 
           />
-        <Route path="education" 
+        <Route path="education_documents" 
           element={
             <EntityPage 
               config={{
-                title: "Education",
-                endpoint: `${api}/api/education`,
+                title: "Education Documents",
+                endpoint: `${api}/api/education_documents`,
                 columns: [
                   { field: "institution", headerName: "Учебное заведение" },
                   { field: "degree", headerName: "Степень" },
@@ -113,6 +113,114 @@ const AppRouter = () => (
                 ]
               }} 
             />} 
+          />
+          <Route path="/petitions" 
+            element={
+              <EntityPage 
+                config={{
+                  title: "Ходатайства",
+                  endpoint: `${api}/api/petitions`,
+                  columns: [
+                    { field: "disctrict", headerName: "Район УМВД" },
+                    { field: "object", headerName: "Цель подачи" },
+                    { field: "reason", headerName: "В связи с" }
+                  ],
+                  fields: [
+                    { name: "disctrict", label: "Район УМВД", type: "string"},
+                    { name: "object", label: "Цель подачи", type: "string", required: true },
+                    { name: "reason", label: "В связи с", type: "string", required: true }
+                  ]
+                }} 
+              />} 
+          />
+          <Route path="/medical_reports" 
+            element={
+              <EntityPage 
+                config={{
+                  title: "Медицинские заключения",
+                  endpoint: `${api}/api/medical_reports`,
+                  columns: [
+                    { field: "organization", headerName: "Организация" },
+                    { field: "series", headerName: "Серия" },
+                    { field: "number", headerName: "Номер" }
+                  ],
+                  fields: [
+                    { name: "organization", label: "Организация", type: "string"},
+                    { name: "series", label: "Серия", type: "number", required: true },
+                    { name: "number", label: "Номер", type: "number", required: true }
+                  ]
+                }} 
+              />} 
+          />
+          <Route path="/migration_cards" 
+            element={
+              <EntityPage 
+                config={{
+                  title: "Миграционные карты",
+                  endpoint: `${api}/api/migration_cards`,
+                  columns: [
+                    { field: "series", headerName: "Серия" },
+                    { field: "number", headerName: "Номер" },
+                    { field: "start_date", headerName: "Начало срока пребывания" },
+                    { field: "end_date", headerName: "Конец срока пребывания" },
+                  ],
+                  fields: [
+                    { name: "series", label: "Серия", type: "number", required: true },
+                    { name: "number", label: "Номер", type: "number", required: true },
+                    { name: "start_date", label: "Начало срока пребывания", type: "date", required: true },
+                    { name: "end_date", label: "Конец срока пребывания", type: "date" }
+                  ]
+                }} 
+              />} 
+          />
+          <Route path="/arrival_notifications" 
+            element={
+              <EntityPage 
+                config={{
+                  title: "Уведомления о прибытии",
+                  endpoint: `${api}/api/arrival_notifications`,
+                  columns: [
+                    { field: "notification", headerName: "Уведомление" },
+                  ],
+                  fields: [
+                    { name: "notification", label: "Уведомление", type: "string", required: true },
+                  ]
+                }} 
+              />} 
+          />
+          <Route path="/education_agreement" 
+            element={
+              <EntityPage 
+                config={{
+                  title: "Договоры об образовании",
+                  endpoint: `${api}/api/education_agreement`,
+                  columns: [
+                    { field: "number", headerName: "Номер" },
+                  ],
+                  fields: [
+                    { name: "number", label: "Номер", type: "number", required: true },
+                  ]
+                }} 
+              />} 
+          />
+          <Route path="/termination_notifications" 
+            element={
+              <EntityPage 
+                config={{
+                  title: "Уведомления о предоставлении академического отпуска, {'\n'} о завершении или досрочном прекращении обучения",
+                  endpoint: `${api}/api/termination_notifications`,
+                  columns: [
+                    { field: "disctrict", headerName: "Район УМВД" },
+                    { field: "object", headerName: "Цель подачи" },
+                    { field: "reason", headerName: "Основание" }
+                  ],
+                  fields: [
+                    { name: "disctrict", label: "Район УМВД", type: "string"},
+                    { name: "object", label: "Цель подачи", type: "string", required: true },
+                    { name: "reason", label: "Основание", type: "string", required: true }
+                  ]
+                }} 
+              />} 
           />
         <Route index element={<Navigate to="students" />} />
       </Route>
