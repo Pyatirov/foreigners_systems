@@ -188,12 +188,12 @@ const AppRouter = () => (
                 }} 
               />} 
           />
-          <Route path="/education_agreement" 
+          <Route path="/education_agreements" 
             element={
               <EntityPage 
                 config={{
                   title: "Договоры об образовании",
-                  endpoint: `${api}/api/education_agreement`,
+                  endpoint: `${api}/api/education_agreements`,
                   columns: [
                     { field: "number", headerName: "Номер" },
                   ],

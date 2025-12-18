@@ -165,7 +165,7 @@ const MainLayout = () => {
           </MenuItem>
           <MenuItem 
             component={Link} 
-            to="/education_agreement"
+            to="/education_agreements"
             onClick={handleDocumentsLeave}
             sx={{fontWeight: "bold"}}
           >
