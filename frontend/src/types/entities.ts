@@ -9,7 +9,7 @@ export interface EntityConfig<T> {
 export interface EntityField<T = any> {
   name: keyof T;
   label: string;
-  type: 'string' | 'number' | 'date' | 'select';
+  type: 'string' | 'number' | 'date' | 'select' | 'photo';
   required?: boolean;
   options?: {label: string; value: any; }[];
 }

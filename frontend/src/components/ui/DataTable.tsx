@@ -23,6 +23,7 @@ interface DataTableProps {
   onDelete?: (row: any) => void;
   page?: number;
   onPageChange?: (event: unknown, newPage: number) => void;
+  onRowClick?: (row: any) => void;
   rowsPerPage?: number;
   multiSelectMode?: boolean;
   selectedRows?: any[];
@@ -80,7 +81,8 @@ export const DataTable: React.FC<DataTableProps> = ({
   multiSelectMode = false,
   selectedRows = [],
   toggleSelectRow,
-  toggleSelectAll
+  toggleSelectAll,
+  onRowClick
 
 }) => {
   const [sortField, setSortField] = useState<string | null>(null);
@@ -188,7 +190,9 @@ export const DataTable: React.FC<DataTableProps> = ({
           <TableBody>
             {paginatedData.length > 0 ? (
               paginatedData.map((row, index) => (
-                <TableRow key={row.id || index} selected={selectedRows.includes(row.id)}>
+                <TableRow key={row.id || index} selected={selectedRows.includes(row.id)} onClick={() => 
+                  onRowClick?.(row)} 
+                    sx={{ cursor: onRowClick ? "pointer" : "default", ":hover": { backgroundColor: "secondary.main", transition: "0.3s ease" } }}>
                   {multiSelectMode && (
                     <TableCell>
                       <Checkbox

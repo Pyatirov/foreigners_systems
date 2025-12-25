@@ -8,6 +8,7 @@ import { FiltersForm } from "../components/ui/FiltersForm";
 import type { EntityConfig } from "../types/entities";
 import { Box, IconButton, Typography } from "@mui/material";
 import { Add, Delete, Cancel } from "@mui/icons-material";
+import { StudentCard } from "../components/ui/StudentCard";
 
 interface EntityPageProps<T> {
   config: EntityConfig<T>;
@@ -31,6 +32,8 @@ export const EntityPage = <T extends Record<string, any>>({ config }: EntityPage
   // Состояния для мультивыбора
   const [multiSelectMode, setMultiSelectMode] = useState(false);
   const [selectedRows, setSelectedRows] = useState<any[]>([]);
+  const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
+  const [cardOpen, setCardOpen] = useState(false);
 
   const loadData = () => {
     setLoading(true);
@@ -253,8 +256,18 @@ export const EntityPage = <T extends Record<string, any>>({ config }: EntityPage
         />
       )}
 
-      {error && <Box sx={{ bgcolor: "#ffebee", color: "#c62828", p: 2, borderRadius: 1 }}>{error}</Box>}
-      {loading && !error && <Box sx={{ p: 3, textAlign: "center", color: "text.secondary" }}><Typography variant="body1">Загрузка...</Typography></Box>}
+      {error && 
+        <Box sx={{ bgcolor: "#ffebee", color: "#c62828", p: 2, borderRadius: 1 }}>
+          {error}
+        </Box>}
+
+      {loading && !error && 
+        <Box sx={{ p: 3, textAlign: "center", color: "text.secondary" }}>
+          <Typography variant="body1">
+            Загрузка...
+          </Typography>
+        </Box>}
+        
       {!loading && data.length === 0 && !error && (
         <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 1, mt: 2 }}>
           <Typography variant="body1" sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -288,6 +301,11 @@ export const EntityPage = <T extends Record<string, any>>({ config }: EntityPage
           onDelete={handleDelete}
           page={page}
           onPageChange={handlePageChange}
+          onRowClick={(row) => {
+            console.log("Row clicked:", row);
+            setSelectedStudent(row._id);
+            setCardOpen(true);
+          }}
           rowsPerPage={10}
           multiSelectMode={multiSelectMode}
           selectedRows={selectedRows}
@@ -296,7 +314,14 @@ export const EntityPage = <T extends Record<string, any>>({ config }: EntityPage
           cancelMultiSelect={cancelMultiSelect}
           confirmMultiDelete={confirmMultiDelete}
         />
+        
       )}
+
+      <StudentCard
+        open={cardOpen}
+        onClose={() => setCardOpen(false)}
+        studentId={selectedStudent!}
+      />
 
       <EntityForm
         open={formOpen}

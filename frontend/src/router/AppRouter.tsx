@@ -18,6 +18,7 @@ const AppRouter = () => (
                 title: "Students",
                 endpoint: `${api}/api/students`,
                 columns: [
+                  { field: "photoUrl", headerName: "Фото" },
                   { field: "lastname", headerName: "Фамилия" },
                   { field: "firstname", headerName: "Имя" },
                   { field: "middlename", headerName: "Отчество" },
@@ -26,6 +27,7 @@ const AppRouter = () => (
                   { field: "sex", headerName: "Пол" }
                 ],
                 fields: [
+                  { name: "photoUrl", label: "Фото", type: "photo" },
                   { name: "lastname", label: "Фамилия", type: "string", required: true },
                   { name: "firstname", label: "Имя (имена)", type: "string", required: true },
                   { name: "middlename", label: "Отчество", type: "string" },
@@ -109,7 +111,7 @@ const AppRouter = () => (
                   { name: "institution", label: "Учебное заведение", type: "string", required: true },
                   { name: "degree", label: "Степень", type: "string", required: true },
                   { name: "field_of_study", label: "Направление обучения", type: "string" },
-                  { name: "graduation_date", label: "Дата окончания", type: "date" }
+                  { name: "graduation_date", label: "Дата окончания", type: "date", required: true }
                 ]
               }} 
             />} 
@@ -126,7 +128,11 @@ const AppRouter = () => (
                     { field: "reason", headerName: "В связи с" }
                   ],
                   fields: [
-                    { name: "disctrict", label: "Район УМВД", type: "string"},
+                    { name: "disctrict", label: "Район УМВД", type: "select", options:[
+                        {value: "Адмиралтейскому", label: "Адмиралтейский"},
+                        {value: "Выборгскому", label: "Выборгский"},
+                      ]
+                    },
                     { name: "object", label: "Цель подачи", type: "string", required: true },
                     { name: "reason", label: "В связи с", type: "string", required: true }
                   ]
@@ -215,7 +221,11 @@ const AppRouter = () => (
                     { field: "reason", headerName: "Основание" }
                   ],
                   fields: [
-                    { name: "disctrict", label: "Район УМВД", type: "string"},
+                    { name: "disctrict", label: "Район УМВД", type: "select", options:[
+                        {value: "Адмиралтейскому", label: "Адмиралтейский"},
+                        {value: "Выборгскому", label: "Выборгский"},
+                      ]
+                    },
                     { name: "object", label: "Цель подачи", type: "string", required: true },
                     { name: "reason", label: "Основание", type: "string", required: true }
                   ]

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Autocomplete, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, MenuItem, InputAdornment, IconButton } from "@mui/material";
+import { Autocomplete, Box, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Typography, Button, MenuItem, InputAdornment, IconButton } from "@mui/material";
 import CountryFlag from "react-country-flag";
 import { Clear } from "@mui/icons-material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
@@ -233,10 +233,6 @@ const renderField = (field: EntityField<T>) => {
       );
     }
 
-
-    // -------------------------------
-    // SELECT FIELD
-    // -------------------------------
     case "select":
       if (field.name === "country") {
         return (
@@ -267,7 +263,8 @@ const renderField = (field: EntityField<T>) => {
             )}
           />
         );
-      } else {
+      }
+      else {
         return (
         <TextField
           key={String(field.name)}
@@ -292,6 +289,32 @@ const renderField = (field: EntityField<T>) => {
         </TextField>
       );
       }
+      case "photo":
+        return (
+          <Box key={String(field.name)} sx={{ my: 2 }}>
+            <Button variant="outlined" component="label">
+              {form[field.name] ? "Изменить фото" : "Загрузить фото"}
+              <input
+                type="file"
+                hidden
+                accept="image/*"
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    const file = e.target.files[0];
+                    // Можно сразу сохранять в state объект File
+                    handleChange(field.name, file);
+                  }
+                }}
+              />
+            </Button>
+            {form[field.name] && typeof form[field.name] === "string" && (
+              <Box mt={1}>
+                <Typography variant="body2">Выбран файл: {form[field.name].name || form[field.name]}</Typography>
+              </Box>
+            )}
+          </Box>
+        );
+
     // -------------------------------
     default:
       return null;
