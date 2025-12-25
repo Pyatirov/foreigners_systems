@@ -11,6 +11,22 @@ export const getStudents = async (req: Request, res: Response) => {
   }
 };
 
+export const getStudentById = async (req: Request, res: Response) => {
+  try {
+    const student = await Student.findById(req.params.id);
+
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    res.json(student);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching student", error });
+  }
+};
+
+
+
 // Создание студента
 export const createStudent = async (req: Request, res: Response) => {
   try {

@@ -12,10 +12,12 @@ export const getPetitions = async (req: Request, res: Response) => {
 
 export const createPetition = async (req: Request, res: Response) => {
   try {
+    console.log("CREATE", req.body)
     const newPetition = new Petition(req.body);
     await newPetition.save();
     res.status(201).json(newPetition);
   } catch (error) {
+    console.log("ERROR", error)
     res.status(500).json({ message: "Error creating petition", error });
   }
 };
