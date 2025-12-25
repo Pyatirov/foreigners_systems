@@ -6,7 +6,8 @@ export interface IPassport extends Document {
   number: number,
   valid_from: Date,
   valid_to: Date,
-  student: Types.ObjectId
+  scanUrl?: string;
+  student?: Types.ObjectId
 }
 
 const StudentSchema = new Schema<IPassport>({
@@ -15,11 +16,11 @@ const StudentSchema = new Schema<IPassport>({
   number: { type: Number, required: true },
   valid_from: { type: Date },
   valid_to: { type: Date},
+  scanUrl: { type: String },
   student: {
     type: Schema.Types.ObjectId,
     ref: "students",
-    required: true,
-    unique: true,
+    default: null
   }
 }, {timestamps: true});
 

@@ -5,7 +5,8 @@ export interface IEducation extends Document {
   degree: string;
   field_of_study: string;
   graduation_date: Date;
-  student: Types.ObjectId
+  scanUrl?: string;
+  student?: Types.ObjectId
 }
 
 const EducationSchema = new Schema<IEducation>({
@@ -13,10 +14,11 @@ const EducationSchema = new Schema<IEducation>({
   degree: { type: String, required: true },
   field_of_study: { type: String },
   graduation_date: { type: Date },
+  scanUrl: { type: String },
   student: {
       type: Schema.Types.ObjectId,
       ref: "students",
-      required: true
+      default: null
     }
 }, {timestamps: true});
 

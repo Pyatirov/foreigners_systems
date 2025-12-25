@@ -5,7 +5,8 @@ export interface IMigrationCard extends Document {
   number: number;
   start_date: Date;
   end_date: Date;
-  student: Types.ObjectId
+  scanUrl?: string;
+  student?: Types.ObjectId
 }
 
 const MigrationCardSchema = new Schema<IMigrationCard>({
@@ -13,11 +14,11 @@ const MigrationCardSchema = new Schema<IMigrationCard>({
   number: { type: Number, required: true },
   start_date: { type: Date, required: true },
   end_date: { type: Date, required: true },
+  scanUrl: { type: String },
   student: {
       type: Schema.Types.ObjectId,
       ref: "students",
-      required: true,
-      unique: true,
+      default: null
     }
 }, {timestamps: true});
 

@@ -5,18 +5,19 @@ export interface IMedicalReport extends Document {
   organization: string;
   series: number;
   number: number;
-  student: Types.ObjectId
+  scanUrl?: string;
+  student?: Types.ObjectId
 }
 
 const MedicalReportSchema = new Schema<IMedicalReport>({
   organization: { type: String },
   series: { type: Number, required: true },
   number: { type: Number, required: true },
+  scanUrl: { type: String },
   student: {
       type: Schema.Types.ObjectId,
       ref: "students",
-      required: true,
-      unique: true,
+      default: null
     }
 }, {timestamps: true});
 

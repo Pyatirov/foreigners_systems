@@ -6,7 +6,8 @@ export interface IVisa extends Document {
   number: string;
   issued_date: Date;
   expiry_date: Date;
-  student: Types.ObjectId
+  scanUrl?: string;
+  student?: Types.ObjectId
 }
 
 const VisaSchema = new Schema<IVisa>({
@@ -15,10 +16,11 @@ const VisaSchema = new Schema<IVisa>({
   number: { type: String, required: true },
   issued_date: { type: Date },
   expiry_date: { type: Date },
+  scanUrl: { type: String },
   student: {
       type: Schema.Types.ObjectId,
       ref: "students",
-      required: true
+      default: null
     }
 }, {timestamps: true});
 

@@ -4,7 +4,8 @@ export interface ITermNotice extends Document {
   district: string;
   object: string;
   reason: string;
-  student: Types.ObjectId
+  scanUrl?: string;
+  student?: Types.ObjectId
 }
 
 const TermNoticeSchema = new Schema<ITermNotice>({
@@ -14,8 +15,7 @@ const TermNoticeSchema = new Schema<ITermNotice>({
   student: {
       type: Schema.Types.ObjectId,
       ref: "students",
-      required: true,
-      unique: true,
+      default: null
     }
 }, {timestamps: true});
 

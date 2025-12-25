@@ -2,15 +2,17 @@ import mongoose, { Schema, Document, Types } from "mongoose";
 
 export interface IEduAgreement extends Document {
   number: number;
-  student: Types.ObjectId;
+  scanUrl?: string;
+  student?: Types.ObjectId;
 }
 
 const EduAgreementSchema = new Schema<IEduAgreement>({
   number: { type: Number, required: true },
+  scanUrl: { type: String },
   student: {
       type: Schema.Types.ObjectId,
       ref: "students",
-      required: true
+      default: null
     }
 }, {timestamps: true});
 
