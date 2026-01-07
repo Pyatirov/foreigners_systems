@@ -12,6 +12,7 @@ import { router as migrationCardRouter } from "./routes/migrationCardRoutes"
 import { router as arrivalNoticeRouter } from "./routes/arrivalNoticeRoutes"
 import { router as eduAgreementRouter } from "./routes/eduAgreementRoutes"
 import { router as termNoticeRouter } from "./routes/termNoticeRoutes"
+import { router as authRouter } from "./routes/auth.routes"
 
 dotenv.config()
 
@@ -32,6 +33,7 @@ app.use("/api/migration_cards", migrationCardRouter);
 app.use("/api/arrival_notifications", arrivalNoticeRouter);
 app.use("/api/education_agreements", eduAgreementRouter);
 app.use("/api/termination_notifications", termNoticeRouter);
+app.use("/api/auth", authRouter);
 
 const startServer = async () => {
   await connectDB();
