@@ -1,25 +1,36 @@
 import { Request, Response } from "express";
-import bcrypt from "bcryptjs";
-import { User } from "../models/User";
-import { signToken } from "../utils/jwt";
+import { loginUser, refreshSession } from "@/services/auth.service";
 
-export const login = async (req: Request, res: Response) => {
-  const { username, password, role } = req.body;
+export async function login(req: Request, res: Response) {
+  const { email, password } = req.body;
 
-  const user = await User.findOne({ username, role });
-  if (!user) {
-    return res.status(401).json({ message: "Неверные данные" });
-  }
+  const { accessToken, refreshToken } = await loginUser(email, password, { ip: req.ip, userAgent: req.headers["user-agent"]! })
 
-  const ok = await bcrypt.compare(password, user.passwordHash);
-  if (!ok) {
-    return res.status(401).json({ message: "Неверные данные" });
-  }
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict",
+    path: "auth/refresh"
+  })
 
-  const token = signToken({
-    id: user._id,
-    role: user.role,
-  });
+  res.json({accessToken})
+}
 
-  res.json({ token });
-};
+export async function refresh(req: Request, res: Response) {
+  const refreshToken = req.cookies.refreshToken
+  if (!refreshToken) return res.sendStatus(401)
+  
+  const tokens = await refreshSession(refreshToken, {
+    ip: req.ip,
+    userAgent: req.headers["user-agent"]!
+  })
+
+  res.cookie("refreshToken", tokens.refreshToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict",
+    path: "/auth/refresh"
+  })
+
+  res.json({ accessToken: tokens.accessToken })
+}

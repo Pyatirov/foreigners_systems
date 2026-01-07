@@ -1,13 +1,24 @@
-import { Schema, model } from "mongoose";
+import { ObjectId, Schema, model } from "mongoose";
+import { IRefreshToken, RefreshTokenSchema } from "./Token"
 
-const UserSchema = new Schema({
-  username: { type: String, unique: true },
+export interface IUser {
+  _id: ObjectId,
+  email: string,
+  passwordHash: string,
+  role: "admin" | "user",
+  refreshTokens: IRefreshToken[]
+  createdAt: Date
+  updatedAt: Date
+}
+
+const UserSchema = new Schema<IUser>({
+  email: { type: String, unique: true, required: true, index: true },
   passwordHash: { type: String, required: true },
-  role: {
-    type: String,
-    enum: ["admin", "specialist"],
-    required: true,
-  },
+  role: { type: String, enum: [ "user", "admin"], default: "user"},
+  refreshTokens: { type: [RefreshTokenSchema], default: [] }
+},
+{ 
+  timestamps: true 
 });
 
-export const User = model("User", UserSchema);
+export const User = model<IUser>("User", UserSchema);
