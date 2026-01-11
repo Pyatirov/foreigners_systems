@@ -34,3 +34,8 @@ export async function refresh(req: Request, res: Response) {
 
   res.json({ accessToken: tokens.accessToken })
 }
+
+export async function register(req: Request, res: Response) {
+  
+}
+

@@ -32,6 +32,10 @@ export async function loginUser (email: string, password: string, meta: { ip?: s
 
 }
 
+export async function registerUser(email: string, password: string, meta: { ip?: string, userAgent: string}) {
+    
+}
+
 export async function refreshSession(refreshToken: string, meta: { ip?: string, userAgent: string }) {
     const payload = verifyRefreshToken(refreshToken)
 
