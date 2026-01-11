@@ -23,7 +23,10 @@ const app = express();
 
 app.use(express.json());
 app.use(cookieParser())
-app.use(cors({ origin: /localhost/ }));
+app.use(cors({
+  origin: 'http://localhost:5173', // порт фронтенда
+  credentials: true,               // <--- обязательно для cookie
+}));
 
 app.use("/api/students", studentRouter);
 app.use("/api/passports", passportRouter);
@@ -35,7 +38,7 @@ app.use("/api/migration_cards", migrationCardRouter);
 app.use("/api/arrival_notifications", arrivalNoticeRouter);
 app.use("/api/education_agreements", eduAgreementRouter);
 app.use("/api/termination_notifications", termNoticeRouter);
-// app.use("/api", authRouter);
+app.use("/auth", authRouter);
 
 const startServer = async () => {
   await connectDB();
