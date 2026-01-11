@@ -8,7 +8,7 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction) 
   const token = authHeader.split(' ')[1]
   try {
     const payload = verifyAccessToken(token)
-    req.user = payload // добавляем user в объект запроса
+    req.user = payload
     next()
   } catch (err) {
     return res.status(401).json({ message: 'Invalid token' })
