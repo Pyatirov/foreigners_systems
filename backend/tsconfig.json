@@ -13,6 +13,6 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "../frontend/src/api/store"],
   "exclude": ["node_modules", "**/*.test.ts"]
 }

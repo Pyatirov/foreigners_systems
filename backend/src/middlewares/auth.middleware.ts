@@ -1,15 +1,16 @@
-import { verifyRefreshToken } from "@/services/token.service";
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from 'express'
+import { verifyAccessToken } from '@/services/token.service'
 
 export function authMiddleware(req: Request, res: Response, next: NextFunction) {
-  const header = req.headers.authorization
-  if (!header) return res.sendStatus(401)
+  const authHeader = req.headers.authorization
+  if (!authHeader) return res.status(401).json({ message: 'No token' })
 
-  // const token = header.split('')[1]
-
-  // const payload = verifyAccessToken(token)
-
-  // req.user = payload
-
-  // next()
+  const token = authHeader.split(' ')[1]
+  try {
+    const payload = verifyAccessToken(token)
+    req.user = payload // добавляем user в объект запроса
+    next()
+  } catch (err) {
+    return res.status(401).json({ message: 'Invalid token' })
+  }
 }

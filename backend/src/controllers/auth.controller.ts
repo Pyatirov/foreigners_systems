@@ -10,7 +10,7 @@ export async function login(req: Request, res: Response) {
     httpOnly: true,
     secure: true,
     sameSite: "strict",
-    path: "auth/refresh"
+    path: "/auth/refresh"
   })
 
   res.json({accessToken})
