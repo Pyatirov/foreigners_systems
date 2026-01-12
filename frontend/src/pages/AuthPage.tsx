@@ -1,4 +1,4 @@
-import { Box, Paper, Typography, TextField, Button, Tabs, Tab } from "@mui/material";
+import { Box, Paper, Typography, TextField, Button, Tabs, Tab, Select, MenuItem, FormControl, InputLabel } from "@mui/material";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginRequest } from "../api/auth.api"; // предполагаем функцию регистрации
@@ -14,6 +14,7 @@ export const AuthPage = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [role, setRole] = useState("user");
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);
@@ -134,6 +135,22 @@ export const AuthPage = () => {
         <Typography variant="h5" align="center">
           {tab === 0 ? "Вход" : "Регистрация"}
         </Typography>
+
+        {tab === 1 && (
+          <FormControl fullWidth>
+            <InputLabel id="role-label">Роль</InputLabel>
+            <Select
+              labelId="role-label"
+              value={role}
+              label="Роль"
+              onChange={(e) => setRole(e.target.value)}
+            >
+              <MenuItem value="user">Специалист</MenuItem>
+              <MenuItem value="admin">Администратор</MenuItem>
+            </Select>
+          </FormControl>
+        )}
+
 
         <TextField
           label="Email"
