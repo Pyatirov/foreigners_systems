@@ -12,6 +12,11 @@ const Header = () => {
   const isDocumentsMenuOpen = Boolean(anchorEl);
   const { user, logout, isAuth } = useAuth();
 
+  console.log("HEADER AUTH CHECK:", {
+  isAuth,
+  user,
+});
+
   const currentTab = {
     "/students": 0,
     "/passports": 1,
@@ -35,51 +40,63 @@ const Header = () => {
 
   return (
     <>
-        {isAuth && user && (
-            <AppBar position="fixed" color="default" elevation={1}>
-            <Toolbar sx={{ justifyContent: "flex-end", gap: 1 }}>
-                <Avatar sx={{ width: 32, height: 32 }}>
-                {user.email[0].toUpperCase()}
-                </Avatar>
-
-                <Typography variant="body2">
-                {user.email}
-                </Typography>
-
-                <Tooltip title="Выйти">
-                <IconButton
-                    onClick={() => {
-                    logout();
-                    navigate("/login");
-                    }}
-                >
-                    <LogoutIcon />
-                </IconButton>
-                </Tooltip>
-            </Toolbar>
-            </AppBar>
-        )}
-
       <Box
         sx={{
           display: "flex",
           alignItems: "center",
-          justifyContent: "center",
+          justifyContent: "space-between",
           bgcolor: "#1D1D1D",
           px: 3,
           py: 1,
         }}
       >
-        {/* Лого слева */}
-        <Box sx={{ position: "absolute", left: 32, top: 16, display: "flex", alignItems: "center" }}>
-          <img src={logo} alt="Logo" style={{ height: 50, objectFit: "contain" }} />
+        {/* ЛЕВАЯ ЧАСТЬ — ЛОГО */}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <img src={logo} alt="Logo" style={{ height: 50 }} />
         </Box>
 
-        {/* Название приложения по центру */}
-        <Typography variant="h6" sx={{ color: "#fff", fontWeight: "bold", whiteSpace: "pre-line", align: "center" }}>
+        {/* ЦЕНТР — НАЗВАНИЕ */}
+        <Typography
+          variant="h6"
+          sx={{
+            color: "#fff",
+            fontWeight: "bold",
+            textAlign: "center",
+            flex: 1,
+          }}
+        >
           Информационно-аналитическая система УМС
         </Typography>
+
+        {/* ПРАВАЯ ЧАСТЬ — ПОЛЬЗОВАТЕЛЬ */}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          {isAuth && user && (
+            <>
+              <Avatar sx={{ width: 32, height: 32 }}>
+                {user.email[0].toUpperCase()}
+              </Avatar>
+
+              <Typography variant="body2" sx={{ color: "#fff" }}>
+                {user.email}
+              </Typography>
+
+              <Tooltip title="Выйти">
+                <IconButton
+                  size="small"
+                  sx={{ color: "#fff" }}
+                  onClick={() => {
+                    logout();
+                    navigate("/login");
+                  }}
+                >
+                  <LogoutIcon fontSize="small" sx={{"&:hover": { color: "secondary.main" }}} />
+                </IconButton>
+              </Tooltip>
+            </>
+          )}
+        </Box>
       </Box>
+
       <AppBar position="static" sx={{ bgcolor: "#1D1D1D", boxShadow: 3, }} >
         <Tabs value={currentTab} centered
           sx={{
