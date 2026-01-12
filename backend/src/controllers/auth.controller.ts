@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { loginUser, refreshSession } from "@/services/auth.service";
+import { loginUser, refreshSession, registerUser } from "@/services/auth.service";
 
 export async function login(req: Request, res: Response) {
   const { email, password } = req.body;
@@ -14,6 +14,13 @@ export async function login(req: Request, res: Response) {
   })
 
   res.json({accessToken})
+}
+
+export async function register(req: Request, res: Response) {
+  const { email, password, role } = req.body;
+
+  const user = await registerUser(email, password, role, { ip: req.ip, userAgent: req.headers["user-agent"]! })
+  res.status(201).json({ message: "User registered", userId: user._id });
 }
 
 export async function refresh(req: Request, res: Response) {
@@ -35,7 +42,4 @@ export async function refresh(req: Request, res: Response) {
   res.json({ accessToken: tokens.accessToken })
 }
 
-export async function register(req: Request, res: Response) {
-  
-}
 

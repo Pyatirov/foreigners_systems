@@ -9,15 +9,10 @@ export async function loginUser (email: string, password: string, meta: { ip?: s
 
     const ok = await bcrypt.compare(password, user.passwordHash)
     if (!ok) throw new Error("Unauthorized")
-    
-    const accessToken = generateAccessToken({
-        userId: user._id.toString(),
-        role: user.role
-    })
 
-    const refreshToken = generateRefreshToken({
-        userId: user._id.toString()
-    })
+    const accessToken = generateAccessToken({ userId: user._id.toString(), role: user.role, email: user.email })
+
+    const refreshToken = generateRefreshToken({ userId: user._id.toString() })
 
     user.refreshTokens.push({
         token: refreshToken,
@@ -32,8 +27,19 @@ export async function loginUser (email: string, password: string, meta: { ip?: s
 
 }
 
-export async function registerUser(email: string, password: string, meta: { ip?: string, userAgent: string}) {
-    
+export async function registerUser(email: string, password: string, role: string, meta: { ip?: string, userAgent: string}) {
+    const existing = await User.findOne({email})
+    if (existing) throw new Error("User already exists")
+    const passwordHash = await bcrypt.hash(password, 10)
+
+    const user = await User.create({
+        email,
+        passwordHash,
+        role,
+        refreshTokens: []
+    })
+
+    return user
 }
 
 export async function refreshSession(refreshToken: string, meta: { ip?: string, userAgent: string }) {
@@ -67,6 +73,7 @@ export async function refreshSession(refreshToken: string, meta: { ip?: string, 
     accessToken: generateAccessToken({
       userId: user._id.toString(),
       role: user.role,
+      email: user.email,
     }),
     refreshToken: newRefresh,
   }
