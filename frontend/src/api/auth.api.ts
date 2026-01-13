@@ -11,8 +11,11 @@ export async function loginRequest(data: { email: string; password: string; }) {
   return res.data.accessToken;
 }
 
-export async function registerRequest(data: { email: string; password: string }) {
+export async function registerRequest(data: { email: string; password: string, role: string; }) {
   const res = await api.post("/auth/register", data, { withCredentials: true});
   return res.data
 }
 
+export async function logoutRequest() {
+  await api.post("/auth/logout", {}, { withCredentials: true });
+}
