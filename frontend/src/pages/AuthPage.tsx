@@ -1,12 +1,12 @@
 import { Box, Paper, Typography, TextField, Button, Tabs, Tab, Select, MenuItem, FormControl, InputLabel } from "@mui/material";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { loginRequest } from "../api/auth.api"; // предполагаем функцию регистрации
+import { loginRequest, registerRequest } from "../api/auth.api"; // предполагаем функцию регистрации
 import { useAuth } from "../context/AuthContext";
 
 export const AuthPage = () => {
   const navigate = useNavigate();
-  const { login, user, logout, isAuth } = useAuth();
+  const { login, user } = useAuth();
 
   const [tab, setTab] = useState(0); // 0 = Вход, 1 = Регистрация
   const [email, setEmail] = useState("");
@@ -24,8 +24,8 @@ export const AuthPage = () => {
   };
 
   const handleLogin = async () => {
+    setError("");
     try {
-      setError("");
       if (!email || !password) {
         setError("Введите логин и пароль");
         return;
@@ -39,31 +39,9 @@ export const AuthPage = () => {
     }
   };
 
-  // const handleRegister = async () => {
-  //   try {
-  //     setError("");
-  //     if (!email || !password || !confirmPassword) {
-  //       setError("Заполните все поля");
-  //       return;
-  //     }
-  //     if (password !== confirmPassword) {
-  //       setError("Пароли не совпадают");
-  //       return;
-  //     }
-
-  //     await registerRequest({ email, password });
-  //     // После успешной регистрации сразу логиним пользователя
-  //     const accessToken = await loginRequest({ email, password });
-  //     login(accessToken);
-  //     navigate("/", { replace: true });
-  //   } catch (err: any) {
-  //     setError("Ошибка регистрации или пользователь уже существует");
-  //   }
-  // };
-
   const handleRegister = async () => {
+    setError("");
     try {
-      setError("");
       if (!email || !password || !confirmPassword) {
         setError("Заполните все поля");
         return;
@@ -72,37 +50,15 @@ export const AuthPage = () => {
         setError("Пароли не совпадают");
         return;
       }
-
-      const exists = await User.findOne({ email: 'test@test.com' });
-      if (exists) {
-        console.log('User already exists');
-        process.exit(0);
-      }
-
-      const passwordHash = await bcrypt.hash('123456', 10);
-
-      await User.create({
-        email: 'test@test.com',
-        passwordHash,
-        role: 'admin',
-        refreshTokens: [],
-      });
-
-      console.log('Test user created');
-      process.exit(0);
-
-      // Тут будет твой вызов API регистрации
-      console.log("Регистрация:", { email, password });
-
-      // После регистрации можно сразу логинить пользователя
-      const accessToken = await loginRequest({ email, password });
-      login(accessToken);
-      navigate("/", { replace: true });
+      await registerRequest({ email, password, role });
+      // После успешной регистрации сразу логиним пользователя
+      // const accessToken = await loginRequest({ email, password });
+      // login(accessToken);
+      //navigate("/", { replace: true });
     } catch (err: any) {
       setError("Ошибка регистрации или пользователь уже существует");
     }
-  };
-
+  };  
 
   return (
     <>
