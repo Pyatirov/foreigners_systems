@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { loginUser, refreshSession, registerUser } from "@/services/auth.service";
+import { loginUser, logoutUser, refreshSession, registerUser } from "@/services/auth.service";
 
 export async function login(req: Request, res: Response) {
   const { email, password } = req.body;
@@ -8,9 +8,9 @@ export async function login(req: Request, res: Response) {
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
-    secure: true,
-    sameSite: "strict",
-    path: "/auth/refresh"
+    secure: false,
+    sameSite: "lax",
+    path: "/auth"
   })
 
   res.json({accessToken})
@@ -19,8 +19,8 @@ export async function login(req: Request, res: Response) {
 export async function register(req: Request, res: Response) {
   const { email, password, role } = req.body;
 
-  const user = await registerUser(email, password, role, { ip: req.ip, userAgent: req.headers["user-agent"]! })
-  res.status(201).json({ message: "User registered", userId: user._id });
+  const user = await registerUser(email, password, role);
+  res.status(201).json({ message: "User registered", user });
 }
 
 export async function refresh(req: Request, res: Response) {
@@ -34,12 +34,19 @@ export async function refresh(req: Request, res: Response) {
 
   res.cookie("refreshToken", tokens.refreshToken, {
     httpOnly: true,
-    secure: true,
-    sameSite: "strict",
-    path: "/auth/refresh"
+    secure: false,
+    sameSite: "lax",
+    path: "/auth"
   })
 
   res.json({ accessToken: tokens.accessToken })
 }
 
-
+export async function logout(req: Request, res: Response) {
+  const refreshToken = req.cookies.refreshToken;
+  if (refreshToken) {
+    await logoutUser(refreshToken);
+  }
+  res.clearCookie("refreshToken", { path: "/auth/refresh" });
+  res.sendStatus(204);
+}
