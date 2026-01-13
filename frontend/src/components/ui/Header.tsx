@@ -1,9 +1,10 @@
-import { Box, AppBar, Tabs, Tab, Typography, Menu, MenuItem, Toolbar, IconButton, Tooltip, Avatar } from "@mui/material";
+import { Box, AppBar, Tabs, Tab, Typography, Menu, MenuItem, IconButton, Tooltip, Avatar } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout"; 
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import logo from '../../assets/logo.svg'
 import { useAuth } from "../../context/AuthContext";
+import { logoutRequest } from "../../api/auth.api";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -11,11 +12,6 @@ const Header = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const isDocumentsMenuOpen = Boolean(anchorEl);
   const { user, logout, isAuth } = useAuth();
-
-  console.log("HEADER AUTH CHECK:", {
-  isAuth,
-  user,
-});
 
   const currentTab = {
     "/students": 0,
@@ -37,6 +33,15 @@ const Header = () => {
   const handleDocumentsLeave = () => {
     setAnchorEl(null);
   };
+
+  const handleLogout = async () => {
+    try {
+      await logoutRequest()
+    } finally {
+      logout() // локально чистим access token / state
+      navigate("/auth", { replace: true })
+    }
+  }
 
   return (
     <>
@@ -84,10 +89,7 @@ const Header = () => {
                 <IconButton
                   size="small"
                   sx={{ color: "#fff" }}
-                  onClick={() => {
-                    logout();
-                    navigate("/login");
-                  }}
+                  onClick={() => {handleLogout()}}
                 >
                   <LogoutIcon fontSize="small" sx={{"&:hover": { color: "secondary.main" }}} />
                 </IconButton>
