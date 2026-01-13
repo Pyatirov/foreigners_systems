@@ -12,9 +12,9 @@ export interface IUser {
 }
 
 const UserSchema = new Schema<IUser>({
-  email: { type: String, unique: true, required: true, index: true },
+  email: { type: String, unique: true, required: true },
   passwordHash: { type: String, required: true },
-  role: { type: String, enum: [ "user", "admin"], default: "user"},
+  role: { type: String, enum: [ "user", "admin"], default: "user", required: true },
   refreshTokens: { type: [RefreshTokenSchema], default: [] }
 },
 { 
