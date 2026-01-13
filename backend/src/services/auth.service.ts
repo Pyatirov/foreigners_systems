@@ -27,9 +27,10 @@ export async function loginUser (email: string, password: string, meta: { ip?: s
 
 }
 
-export async function registerUser(email: string, password: string, role: string, meta: { ip?: string, userAgent: string}) {
+export async function registerUser(email: string, password: string, role: string) {
     const existing = await User.findOne({email})
     if (existing) throw new Error("User already exists")
+
     const passwordHash = await bcrypt.hash(password, 10)
 
     const user = await User.create({
@@ -39,7 +40,11 @@ export async function registerUser(email: string, password: string, role: string
         refreshTokens: []
     })
 
-    return user
+    return {
+        id: user._id,
+        email: user.email,
+        role: user.role
+    }
 }
 
 export async function refreshSession(refreshToken: string, meta: { ip?: string, userAgent: string }) {
@@ -77,4 +82,11 @@ export async function refreshSession(refreshToken: string, meta: { ip?: string, 
     }),
     refreshToken: newRefresh,
   }
+}
+
+export async function logoutUser(refreshToken: string) {
+    const user = await User.findOne({"refreshTokens.token": refreshToken});
+    if (!user) return;
+    user.refreshTokens = user.refreshTokens.filter(t => t.token !== refreshToken);
+    await user.save();
 }
