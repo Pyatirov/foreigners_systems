@@ -29,6 +29,7 @@ export const EntityForm = <T extends Record<string, any>>({
   editingItem,
 }: EntityFormProps<T>) => {
   const [form, setForm] = useState<Partial<T>>({});
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (open && editingItem) {
@@ -249,12 +250,10 @@ const renderField = (field: EntityField<T>) => {
                 type="file"
                 hidden
                 accept="image/*"
-                onChange={(e) => {
-                  if (e.target.files && e.target.files[0]) {
-                    const file = e.target.files[0];
-                    // Можно сразу сохранять в state объект File
-                    handleChange(field.name, file);
-                  }
+                 onChange={(e) => {
+                  const file = e.target.files?.[0] ?? null;
+                  console.log("FILE FROM INPUT:", file);
+                  setPhotoFile(file);
                 }}
               />
             </Button>

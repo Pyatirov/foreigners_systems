@@ -121,11 +121,38 @@ export const EntityPage = <T extends Record<string, any>>({ config }: EntityPage
   const handleFormSubmit = (newItem: T) => {
     if (editingItem) {
       const id = editingItem._id || editingItem.id;
+      const {
+        _id,
+        __v,
+        createdAt,
+        updatedAt,
+        photoUrl,
+        ...payload
+      } = newItem as any;
+
+      // защита от {} → String
+      if (typeof photoUrl === "string" && photoUrl.trim() !== "") {
+        payload.photoUrl = photoUrl;
+      }
+
+      console.log("BEFORE FETCH photoUrl:", newItem.photoUrl);
+console.log("TYPE:", typeof newItem.photoUrl);
+console.log("IS FILE:", newItem.photoUrl instanceof File);
+
+
       fetch(`${config.endpoint}/${id}`, {
-        method: "PUT",
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newItem),
-      }).then(() => {
+        body: JSON.stringify(payload),
+      })
+      .then(async res => {
+        if (!res.ok) {
+          const err = await res.text();
+          throw new Error(err);
+        }
+        return res.json();
+      })
+      .then(() => {
         loadData();
         handleFormClose();
       });

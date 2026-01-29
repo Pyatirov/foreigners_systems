@@ -11,13 +11,13 @@ export interface IStudent extends Document {
 }
 
 const StudentSchema = new Schema<IStudent>({
-  photoUrl: { type: String },
+  photoUrl: { type: String, default: "" },
   lastname: { type: String, required: true },
   firstname: { type: String, required: true },
   middlename: { type: String },
   birthdate: { type: Date, required: true },
   country: { type: String },
   sex: { type: Boolean, required: true },
-});
+}, { timestamps: true });
 
 export const Student = mongoose.model<IStudent>("students", StudentSchema);
