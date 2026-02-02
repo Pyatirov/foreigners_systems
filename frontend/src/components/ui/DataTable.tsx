@@ -1,16 +1,4 @@
-import {
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
-  Paper,
-  IconButton,
-  Box,
-  TablePagination,
-  Typography,
-  Checkbox,
-} from "@mui/material";
+import { Table, TableHead, TableRow, TableCell, TableBody, Paper, IconButton, Box, TablePagination, Typography, Checkbox } from "@mui/material";
 import { Edit, Delete, ArrowUpward, ArrowDownward} from "@mui/icons-material";
 import CountryFlag from "react-country-flag";
 import { COUNTRY_MAP } from "../../utils/countryMap";
@@ -190,7 +178,7 @@ export const DataTable: React.FC<DataTableProps> = ({
           <TableBody>
             {paginatedData.length > 0 ? (
               paginatedData.map((row, index) => (
-                <TableRow key={row.id || index} selected={selectedRows.includes(row.id)} onClick={() => 
+                <TableRow key={row._id || index} selected={selectedRows.includes(row.id)} onClick={() => 
                   onRowClick?.(row)} 
                     sx={{ cursor: onRowClick ? "pointer" : "default", ":hover": { backgroundColor: "secondary.main", transition: "0.3s ease" } }}>
                   {multiSelectMode && (
@@ -206,10 +194,27 @@ export const DataTable: React.FC<DataTableProps> = ({
                     const isDateField = col.field.includes("date") || col.field.includes("_at");
                     const isNationalityField = col.field === "country";
                     const isBirthDateField = col.field === "birthdate";
+                    const isPhotoField = col.field === "photoUrl";
 
                     return (
                       <TableCell key={col.field}>
-                        {isBirthDateField ? (
+                        {isPhotoField ? (
+                          value ? (
+                            <Box
+                              component="img"
+                              src={value.startsWith('http') ? value : `http://localhost:5000${value}`}
+                              alt="Photo"
+                              sx={{
+                                width: 50,
+                                height: 50,
+                                borderRadius: 1,
+                                objectFit: "cover",
+                              }}
+                            />
+                          ) : (
+                            <Typography variant="body2" color="textSecondary">-</Typography>
+                          )
+                        ) : isBirthDateField ? (
                           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                             <Typography variant="body2">{formatDate(value)}</Typography>
                             {value && (() => {
@@ -246,12 +251,12 @@ export const DataTable: React.FC<DataTableProps> = ({
                   <TableCell align="center">
                     <Box sx={{ display: "flex", gap: 1, justifyContent: "center" }}>
                       {!multiSelectMode && onEdit && (
-                        <IconButton size="small" onClick={() => onEdit(row)} color="primary">
+                        <IconButton size="small" color="primary" onClick={(e) => {e.stopPropagation(); onEdit(row)}}>
                           <Edit fontSize="small" />
                         </IconButton>
                       )}
                       {!multiSelectMode && onDelete && (
-                        <IconButton size="small" onClick={() => onDelete(row)} color="error">
+                        <IconButton size="small" color="error" onClick={(e) => {e.stopPropagation; onDelete(row)}}>
                           <Delete fontSize="small" />
                         </IconButton>
                       )}

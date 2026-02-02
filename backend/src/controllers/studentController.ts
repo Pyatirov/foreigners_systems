@@ -32,7 +32,10 @@ export const createStudent = async (req: Request, res: Response) => {
 
     const { photoUrl, ...data } = req.body;
 
-    if (typeof photoUrl === "string" && photoUrl.trim() !== "") {
+    // If a file was uploaded, use the file path; otherwise use provided photoUrl
+    if (req.file) {
+      data.photoUrl = `/uploads/photos/${req.file.filename}`;
+    } else if (typeof photoUrl === "string" && photoUrl.trim() !== "") {
       data.photoUrl = photoUrl;
     }
 
@@ -61,8 +64,10 @@ export const updateStudent = async (req: Request, res: Response) => {
       ...data
     } = req.body;
 
-    // защита от неверного типа
-    if (photoUrl && typeof photoUrl === "string") {
+    // If a file was uploaded, use the file path
+    if (req.file) {
+      data.photoUrl = `/uploads/photos/${req.file.filename}`;
+    } else if (photoUrl && typeof photoUrl === "string") {
       data.photoUrl = photoUrl;
     }
 

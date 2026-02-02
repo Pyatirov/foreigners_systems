@@ -33,6 +33,7 @@ interface StudentData {
   birthdate: string;
   country?: string;
   sex?: boolean;
+  photoUrl?: string;
 }
 
 export const StudentCard: React.FC<StudentCardProps> = ({ open, onClose, studentId }) => {
@@ -96,41 +97,65 @@ export const StudentCard: React.FC<StudentCardProps> = ({ open, onClose, student
         ) : student ? (
           <Box>
             <Grid container spacing={2}>
-              <Grid size={6}>
-                <Typography variant="subtitle2">Фамилия</Typography>
-                <Typography>{student.lastname}</Typography>
+              <Grid size={3}>
+                <Typography variant="subtitle2">Фото</Typography>
+                {student.photoUrl && (
+                  <Box
+                    component="img"
+                    src={student.photoUrl.startsWith('http') ? student.photoUrl : `http://localhost:5000${student.photoUrl}`}
+                    alt="Student Photo"
+                    sx={{
+                      width: "100%",
+                      maxWidth: 150,
+                      height: 150,
+                      borderRadius: 1,
+                      objectFit: "cover",
+                      boxShadow: 1,
+                      mt: 1,
+                    }}
+                  />
+                )}
               </Grid>
 
-              <Grid size={6}>
-                <Typography variant="subtitle2">Имя</Typography>
-                <Typography>{student.firstname}</Typography>
+              <Grid size={9}>
+                <Grid container spacing={2}>
+                  <Grid size={6}>
+                    <Typography variant="subtitle2">Фамилия</Typography>
+                    <Typography>{student.lastname}</Typography>
+                  </Grid>
+
+                  <Grid size={6}>
+                    <Typography variant="subtitle2">Имя</Typography>
+                    <Typography>{student.firstname}</Typography>
+                  </Grid>
+
+                  {student.middlename && (
+                    <Grid size={6}>
+                        <Typography variant="subtitle2">Отчество</Typography>
+                        <Typography>{student.middlename}</Typography>
+                    </Grid>
+                  )}
+
+                  <Grid size={6}>
+                    <Typography variant="subtitle2">Дата рождения</Typography>
+                    <Typography>{new Date(student.birthdate).toLocaleDateString()}</Typography>
+                  </Grid>
+
+                  {student.country && (
+                    <Grid size={6}>
+                      <Typography variant="subtitle2">Страна</Typography>
+                      <Typography>{student.country}</Typography>
+                    </Grid>
+                  )}
+
+                  {student.sex !== undefined && (
+                    <Grid size={6}>
+                      <Typography variant="subtitle2">Пол</Typography>
+                      <Typography>{student.sex ? "М" : "Ж"}</Typography>
+                    </Grid>
+                  )}
+                </Grid>
               </Grid>
-
-              {student.middlename && (
-                <Grid size={6}>
-                    <Typography variant="subtitle2">Отчество</Typography>
-                    <Typography>{student.middlename}</Typography>
-                </Grid>
-              )}
-
-              <Grid size={6}>
-                <Typography variant="subtitle2">Дата рождения</Typography>
-                <Typography>{new Date(student.birthdate).toLocaleDateString()}</Typography>
-              </Grid>
-
-              {student.country && (
-                <Grid size={6}>
-                  <Typography variant="subtitle2">Страна</Typography>
-                  <Typography>{student.country}</Typography>
-                </Grid>
-              )}
-
-              {student.sex !== undefined && (
-                <Grid size={6}>
-                  <Typography variant="subtitle2">Пол</Typography>
-                  <Typography>{student.sex ? "М" : "Ж"}</Typography>
-                </Grid>
-              )}
             </Grid>
 
             <Box marginTop={3}>

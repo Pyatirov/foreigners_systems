@@ -16,6 +16,8 @@ interface EntityFormProps<T> {
   onClose: () => void;
   onSubmit: (data: T) => void;
   config: EntityConfig<T>;
+  photoFile: File | null;
+  onPhotoChange: (file: File | null) => void;
   editingItem?: T | null;
 }
 
@@ -26,10 +28,11 @@ export const EntityForm = <T extends Record<string, any>>({
   onClose,
   onSubmit,
   config,
+  photoFile,
+  onPhotoChange,
   editingItem,
 }: EntityFormProps<T>) => {
   const [form, setForm] = useState<Partial<T>>({});
-  const [photoFile, setPhotoFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (open && editingItem) {
@@ -253,13 +256,15 @@ const renderField = (field: EntityField<T>) => {
                  onChange={(e) => {
                   const file = e.target.files?.[0] ?? null;
                   console.log("FILE FROM INPUT:", file);
-                  setPhotoFile(file);
+                  onPhotoChange(file);
                 }}
               />
             </Button>
-            {form[field.name] && typeof form[field.name] === "string" && (
+            {photoFile && (
               <Box mt={1}>
-                <Typography variant="body2">Выбран файл: {form[field.name].name || form[field.name]}</Typography>
+                <Typography variant="body2">
+                  Выбран файл: {photoFile.name}
+                </Typography>
               </Box>
             )}
           </Box>
