@@ -5,10 +5,12 @@ import { DataTable } from "../components/ui/DataTable";
 import { EntityForm } from "../components/ui/EntityForm";
 import { DeleteConfirmDialog } from "../components/ui/DeleteConfirmDialog";
 import { FiltersForm } from "../components/ui/FiltersForm";
-import type { EntityConfig } from "../types/entities";
+import type { EntityApi, EntityConfig } from "../types/entities";
 import { Box, IconButton, Typography } from "@mui/material";
 import { Add, Delete, Cancel } from "@mui/icons-material";
 import { StudentCard } from "../components/ui/StudentCard";
+import { buildFormData } from "../api/buildFormData";
+import axios from "axios";
 
 interface EntityPageProps<T> {
   config: EntityConfig<T>;
@@ -53,40 +55,41 @@ export const EntityPage = <T extends Record<string, any>>({ config }: EntityPage
     return params.toString(); // возвращаем строку запроса
   };
 
-  const loadData = () => {
-    console.log("loadData: старт загрузки");
-    setLoading(true); // меняем состояние загрузки
-    setError(null); // сбрасываем ошибку перед загрузкой
+  const loadData = async () => {
+    setLoading(true);
+    setError(null);
 
-    const qs = buildQueryParams(); // строим строку запроса
-    console.log("loadData: query string", qs);
+    try {
+      const params: Record<string, string | number> = {};
 
-    // Выполняем запрос к API
-    fetch(`${config.endpoint}?${qs}`) // используем endpoint из конфигурации
-      .then(res => { // обрабатываем ответ
-        console.log("loadData: получен ответ", res.status);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`); // проверяем успешность ответа
-        return res.json(); // парсим JSON из ответа
-      })
-      .then((d) => { // обрабатываем полученные данные
-        console.log("loadData: данные из API", d);
-        const items = Array.isArray(d) ? d : d.items ?? []; // адаптируем к разным форматам ответа
-        setData(items);
-      })
-      .catch((err) => { // обрабатываем ошибки
-        console.error("loadData: ошибка", err);
-        setError("Ошибка загрузки данных");
-      })
-      .finally(() => setLoading(false)); // меняем состояние загрузки в любом случае
+      if (query) params.search = query;
+      params.page = page + 1;
+      params.limit = 10;
+
+      Object.entries(filtersApplied).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== "") {
+          params[key] = String(value);
+        }
+      });
+
+      const response = await axios.get(config.endpoint, { params });
+
+      setData(response.data as T[]);
+    } catch (err) {
+      console.error("loadData error:", err);
+      setError("Ошибка загрузки данных");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     loadData();
-  }, [config.endpoint, query, JSON.stringify(filtersApplied), page]); // перезагружаем данные при изменении endpoint, запроса, фильтров или страницы
+  }, [config.endpoint, page, query, filtersApplied]);
 
   useEffect(() => {
-    setPage(0); // сбрасываем страницу при изменении запроса или фильтров
-  }, [query]);
+    setPage(0);
+  }, [query, filtersApplied]);
 
   const handleEdit = (item: T) => {
     setEditingItem(item); // устанавливаем редактируемый элемент
@@ -115,67 +118,28 @@ export const EntityPage = <T extends Record<string, any>>({ config }: EntityPage
     setPhotoFile(null);
   };
 
-  const handleFormSubmit = (newItem: T) => {
-    const id = editingItem ? (editingItem._id || editingItem.id) : null;
-    const url = id ? `${config.endpoint}/${id}` : config.endpoint;
-    const method = editingItem ? "PATCH" : "POST";
+  const handleFormSubmit = async (
+    newItem: Record<string, any>,          // универсальный объект формы
+    api: EntityApi<any>,                   // API для текущей сущности
+    photoFile?: File | undefined,
+  ) => {
+    try {
+      const data = buildFormData(newItem, photoFile);
 
-    // If there's a photo file, use FormData; otherwise use JSON
-    if (photoFile) {
-      const formData = new FormData();
+      if (editingItem?.id || editingItem?._id) {
+        const id = editingItem.id || editingItem._id;
+        await api.update(id, data);
+      } else {
+        await api.create(data);
+      }
 
-      // Add form fields, excluding photoUrl since we'll send the file instead
-      Object.entries(newItem).forEach(([key, value]) => {
-        if (key === "photoUrl") {
-          // Skip photoUrl field, the photo file will be sent instead
-          return;
-        }
-        if (value !== undefined && value !== null && typeof value !== "object") {
-          formData.append(key, String(value));
-        }
-      });
-
-      // Add the photo file with the expected field name "photo"
-      formData.append("photo", photoFile);
-
-      fetch(url, {
-        method,
-        body: formData,
-      })
-        .then(res => {
-          if (!res.ok) throw new Error(`Request failed: ${res.status}`);
-          return res.json();
-        })
-        .then(() => {
-          loadData();
-          handleFormClose();
-        })
-        .catch(err => {
-          console.error("Form submission error:", err);
-          setError(err.message);
-        });
-    } else {
-      // Send as JSON when no photo
-      fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newItem),
-      })
-        .then(res => {
-          if (!res.ok) throw new Error(`Request failed: ${res.status}`);
-          return res.json();
-        })
-        .then(() => {
-          loadData();
-          handleFormClose();
-        })
-        .catch(err => {
-          console.error("Form submission error:", err);
-          setError(err.message);
-        });
+      loadData();        // обновляем таблицу
+      handleFormClose(); // закрываем форму
+    } catch (err: any) {
+      console.error("Form submission error:", err);
+      setError(err.message || "Ошибка отправки данных");
     }
   };
-
 
 
   const handlePageChange = (_event: unknown, newPage: number) => {
@@ -370,7 +334,8 @@ export const EntityPage = <T extends Record<string, any>>({ config }: EntityPage
       <EntityForm
         open={formOpen}
         onClose={handleFormClose}
-        onSubmit={handleFormSubmit}
+        api={config.api}
+        onSubmit={(formData, photo) => handleFormSubmit(formData, config.api, photo)}
         config={config}
         photoFile={photoFile}
         onPhotoChange={setPhotoFile}
