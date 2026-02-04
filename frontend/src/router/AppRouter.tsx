@@ -3,6 +3,16 @@ import MainLayout from "../components/layout/MainLayout";
 import { EntityPage } from "../pages/EntityPage";
 import { AuthPage } from "../pages/AuthPage";
 import { PrivateRoute } from "./SecuteRoute";
+import { createStudent, deleteStudent, getStudentById, getStudents, updateStudent } from "../api/student.api";
+import { createPassport, deletePassport, getPassportById, getPassports, updatePassport } from "../api/passport.api";
+import { createVisa, deleteVisa, getVisaById, getVisas, updateVisa } from "../api/visa.api";
+import { deleteEducation, getEducation, getEducationById, updateEducation, createEducation } from "../api/education.api";
+import { createPetition, deletePetition, getPetitionById, updatePetition, getPetitions } from "../api/petition.api";
+import { createMedicalReport, deleteMedicalReport, getMedicalReportById, getMedicalReports, updateMedicalReport } from "../api/medicalReport";
+import { createMigrationCard, deleteMigrationCard, getMigrationCardById, updateMigrationCard, getMigrationCards } from "../api/migrationCard";
+import { createArrivalNotice, deleteArrivalNotice, getArrivalNotices, getArrivalNoticeById, updateArrivalNotice } from "../api/arrivalNotice.api";
+import { createEduAgreement, deleteEduAgreement, getEduAgreementById, getEduAgreements, updateEduAgreement } from "../api/eduAgreement.api";
+import { createTermNotice, deleteTermNotice, getTermNoticeById, getTermNotices, updateTermNotice } from "../api/termNotice.api";
 
 const api = import.meta.env.VITE_API_URL;
 
@@ -46,7 +56,14 @@ const AppRouter = () => (
                         { value: "США", label: "США" },
                         { value: "Канада", label: "Канада" }
                       ]}
-                    ]
+                    ],
+                    api: {
+                      getAll: getStudents,
+                      getById: getStudentById,
+                      create: createStudent,
+                      update: updateStudent,
+                      delete: deleteStudent,
+                    },
                   }} 
                 />} 
             />
@@ -69,7 +86,14 @@ const AppRouter = () => (
                       { name: "number", label: "Номер №", type: "number", required: true },
                       { name: "valid_from", label: "Срок начала действия", type: "date" },
                       { name: "valid_to", label: "Срок окончания действия", type: "date" }
-                    ]
+                    ],
+                    api: {
+                      getAll: getPassports,
+                      getById: getPassportById,
+                      create: createPassport,
+                      update: updatePassport,
+                      delete: deletePassport,
+                    },
                   }} 
                 />} 
             />
@@ -92,7 +116,14 @@ const AppRouter = () => (
                       { name: "number", label: "Номер визы", type: "string", required: true },
                       { name: "issued_date", label: "Дата выдачи", type: "date" },
                       { name: "expiry_date", label: "Дата истечения", type: "date" }
-                    ]
+                    ],
+                    api: {
+                      getAll: getVisas,
+                      getById: getVisaById,
+                      create: createVisa,
+                      update: updateVisa,
+                      delete: deleteVisa,
+                    },
                   }} 
                 />} 
             />
@@ -113,7 +144,14 @@ const AppRouter = () => (
                       { name: "degree", label: "Степень", type: "string", required: true },
                       { name: "field_of_study", label: "Направление обучения", type: "string" },
                       { name: "graduation_date", label: "Дата окончания", type: "date", required: true }
-                    ]
+                    ],
+                    api: {
+                      getAll: getEducation,
+                      getById: getEducationById,
+                      create: createEducation,
+                      update: updateEducation,
+                      delete: deleteEducation,
+                    },
                   }} 
                 />} 
             />
@@ -124,19 +162,26 @@ const AppRouter = () => (
                     title: "Ходатайства",
                     endpoint: `${api}/api/petitions`,
                     columns: [
-                      { field: "disctrict", headerName: "Район УМВД" },
+                      { field: "district", headerName: "Район УМВД" },
                       { field: "object", headerName: "Цель подачи" },
                       { field: "reason", headerName: "В связи с" }
                     ],
                     fields: [
-                      { name: "disctrict", label: "Район УМВД", type: "select", options:[
+                      { name: "district", label: "Район УМВД", type: "select", options:[
                           {value: "Адмиралтейскому", label: "Адмиралтейский"},
                           {value: "Выборгскому", label: "Выборгский"},
                         ]
                       },
                       { name: "object", label: "Цель подачи", type: "string", required: true },
                       { name: "reason", label: "В связи с", type: "string", required: true }
-                    ]
+                    ],
+                    api: {
+                      getAll: getPetitions,
+                      getById: getPetitionById,
+                      create: createPetition,
+                      update: updatePetition,
+                      delete: deletePetition,
+                    },  
                   }} 
                 />} 
             />
@@ -155,7 +200,14 @@ const AppRouter = () => (
                       { name: "organization", label: "Организация", type: "string"},
                       { name: "series", label: "Серия", type: "number", required: true },
                       { name: "number", label: "Номер", type: "number", required: true }
-                    ]
+                    ],
+                    api: {
+                      getAll: getMedicalReports,
+                      getById: getMedicalReportById,
+                      create: createMedicalReport,
+                      update: updateMedicalReport,
+                      delete: deleteMedicalReport,
+                    },  
                   }} 
                 />} 
             />
@@ -176,7 +228,14 @@ const AppRouter = () => (
                       { name: "number", label: "Номер", type: "number", required: true },
                       { name: "start_date", label: "Начало срока пребывания", type: "date", required: true },
                       { name: "end_date", label: "Конец срока пребывания", type: "date" }
-                    ]
+                    ],
+                    api: {
+                      getAll: getMigrationCards,
+                      getById: getMigrationCardById,
+                      create: createMigrationCard,
+                      update: updateMigrationCard,
+                      delete: deleteMigrationCard,
+                    },  
                   }} 
                 />} 
             />
@@ -187,11 +246,18 @@ const AppRouter = () => (
                     title: "Уведомления о прибытии",
                     endpoint: `${api}/api/arrival_notifications`,
                     columns: [
-                      { field: "notification", headerName: "Уведомление" },
+                      { field: "student", headerName: "Владелец" },
                     ],
                     fields: [
-                      { name: "notification", label: "Уведомление", type: "string", required: true },
-                    ]
+                      { name: "student", label: "Владелец", type: "string", required: true },
+                    ],
+                    api: {
+                      getAll: getArrivalNotices,
+                      getById: getArrivalNoticeById,
+                      create: createArrivalNotice,
+                      update: updateArrivalNotice,
+                      delete: deleteArrivalNotice,
+                    },  
                   }} 
                 />} 
             />
@@ -206,7 +272,14 @@ const AppRouter = () => (
                     ],
                     fields: [
                       { name: "number", label: "Номер", type: "number", required: true },
-                    ]
+                    ],
+                    api: {
+                      getAll: getEduAgreements,
+                      getById: getEduAgreementById,
+                      create: createEduAgreement,
+                      update: updateEduAgreement,
+                      delete: deleteEduAgreement,
+                    }, 
                   }} 
                 />} 
             />
@@ -217,19 +290,26 @@ const AppRouter = () => (
                     title: "Уведомления о предоставлении академического отпуска, {'\n'} о завершении или досрочном прекращении обучения",
                     endpoint: `${api}/api/termination_notifications`,
                     columns: [
-                      { field: "disctrict", headerName: "Район УМВД" },
+                      { field: "district", headerName: "Район УМВД" },
                       { field: "object", headerName: "Цель подачи" },
                       { field: "reason", headerName: "Основание" }
                     ],
                     fields: [
-                      { name: "disctrict", label: "Район УМВД", type: "select", options:[
+                      { name: "district", label: "Район УМВД", type: "select", options:[
                           {value: "Адмиралтейскому", label: "Адмиралтейский"},
                           {value: "Выборгскому", label: "Выборгский"},
                         ]
                       },
                       { name: "object", label: "Цель подачи", type: "string", required: true },
                       { name: "reason", label: "Основание", type: "string", required: true }
-                    ]
+                    ],
+                    api: {
+                      getAll: getTermNotices,
+                      getById: getTermNoticeById,
+                      create: createTermNotice,
+                      update: updateTermNotice,
+                      delete: deleteTermNotice,
+                    }, 
                   }} 
                 />} 
             />
