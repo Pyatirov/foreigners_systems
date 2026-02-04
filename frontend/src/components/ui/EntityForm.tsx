@@ -7,14 +7,15 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import "dayjs/locale/ru";
-import type { EntityConfig, EntityField } from "../../types/entities";
+import type { EntityConfig, EntityField, EntityApi } from "../../types/entities";
 import React from "react";
 import { COUNTRY_MAP, COUNTRY_OPTIONS } from "../../utils/countryMap";
 
 interface EntityFormProps<T> {
   open: boolean;
   onClose: () => void;
-  onSubmit: (data: T) => void;
+  api: EntityApi<T>;
+  onSubmit: (data: any, photo?: File) => Promise<void>;
   config: EntityConfig<T>;
   photoFile: File | null;
   onPhotoChange: (file: File | null) => void;
