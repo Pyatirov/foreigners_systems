@@ -1,27 +1,37 @@
 import bcrypt from 'bcryptjs'
 import { IUser, User } from "../models/User"
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from './token.service'
-import { HydratedDocument } from 'mongoose'
+import { HydratedDocument, Types } from 'mongoose'
+import { Session } from '@/models/Session'
+import logger from '@/utils/logger'
 
 export async function loginUser (email: string, password: string, meta: { ip?: string, userAgent: string}) {
+    logger.debug({email, ip: meta.ip, userAgent: meta.userAgent}, 'Login attempt')
+    
     const user = await User.findOne({email})
-    if (!user) throw new Error("Unauthorized")
+    if (!user) {
+        logger.warn({email, ip: meta.ip, userAgent: meta.userAgent}, 'Login failed: user not found')
+        throw new Error("Unauthorized")
+    }  
 
     const ok = await bcrypt.compare(password, user.passwordHash)
-    if (!ok) throw new Error("Unauthorized")
+    if (!ok) {
+        logger.warn({email, ip: meta.ip, userAgent: meta.userAgent}, 'Login failed: wrong password')
+        throw new Error("Unauthorized")
+    }
 
+    logger.info({email, ip: meta.ip, userAgent: meta.userAgent}, 'Login success')
+    
     const accessToken = generateAccessToken({ userId: user._id.toString(), role: user.role, email: user.email })
 
     const refreshToken = generateRefreshToken({ userId: user._id.toString() })
 
-    user.refreshTokens.push({
-        token: refreshToken,
-        createdAt: new Date(),
+    await Session.create({
+        userId:    user._id.toString(),
+        token:     refreshToken,
         expiresAt: new Date(Date.now() + 14 * 86400_000),
         ...meta
     })
-
-    await user.save()
 
     return {accessToken, refreshToken}
 
@@ -49,44 +59,46 @@ export async function registerUser(email: string, password: string, role: string
 
 export async function refreshSession(refreshToken: string, meta: { ip?: string, userAgent: string }) {
     const payload = verifyRefreshToken(refreshToken)
-
-    const user: HydratedDocument<IUser> | null = await User.findById(payload.userId)
-    if (!user) throw new Error("Unauthorized")
+    const session = await Session.findOne({ token: refreshToken })
     
-    const stored = user.refreshTokens.find(t => t.token === refreshToken)
-
-    if (!stored) {
-        user.refreshTokens = []
-        await user.save()
+    if (!session) {
+        logger.warn({userId: payload.userId}, 'Refresh session failed: session not found')
+        await Session.deleteMany({userId: payload.userId, ip: meta.ip, userAgent: meta.userAgent });
         throw new Error("Unauthorized")
     }
 
-    user.refreshTokens = user.refreshTokens.filter(t => t.token !== refreshToken)
+    logger.info({userId: payload.userId}, 'Refresh session success')
+    
+    const user = await User.findById(session.userId)
 
-    const newRefresh = generateRefreshToken({userId: user._id.toString()})
+    if (!user) throw new Error("Unauthorized")
 
-    user.refreshTokens.push({
-        token: newRefresh,
-        createdAt: new Date(),
+    await Session.deleteOne()
+    const newRefreshToken = generateRefreshToken({userId: user._id.toString()})
+
+    await Session.create({
+        userId: user._id.toString(),
+        token: newRefreshToken,
         expiresAt: new Date(Date.now() + 14 * 86400_000),
         ...meta
     })
 
-    await user.save()
-
     return {
-    accessToken: generateAccessToken({
-      userId: user._id.toString(),
-      role: user.role,
-      email: user.email,
-    }),
-    refreshToken: newRefresh,
-  }
+        accessToken: generateAccessToken({userId: user._id.toString(), role: user.role, email: user.email}), 
+        refreshToken: newRefreshToken
+    }
 }
 
 export async function logoutUser(refreshToken: string) {
-    const user = await User.findOne({"refreshTokens.token": refreshToken});
-    if (!user) return;
-    user.refreshTokens = user.refreshTokens.filter(t => t.token !== refreshToken);
-    await user.save();
+  const result = await Session.deleteOne({ token: refreshToken })
+
+  if (result.deletedCount === 0) {
+    logger.warn('Logout called with unknown or already deleted token')
+  } else {
+    logger.info('Session deleted on logout')
+  }
+}
+
+export async function logoutAllSessions(userId: string) {
+    await Session.deleteMany({userId: userId})
 }
