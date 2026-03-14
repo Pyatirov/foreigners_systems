@@ -8,7 +8,7 @@ export async function login(req: Request, res: Response) {
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
-    secure: false,
+    secure: process.env.NODE_ENV === 'production',
     sameSite: "lax",
     path: "/auth"
   })
@@ -34,7 +34,7 @@ export async function refresh(req: Request, res: Response) {
 
   res.cookie("refreshToken", tokens.refreshToken, {
     httpOnly: true,
-    secure: false,
+    secure: process.env.NODE_ENV === 'production',
     sameSite: "lax",
     path: "/auth"
   })
@@ -47,6 +47,6 @@ export async function logout(req: Request, res: Response) {
   if (refreshToken) {
     await logoutUser(refreshToken);
   }
-  res.clearCookie("refreshToken", { path: "/auth/refresh" });
+  res.clearCookie("refreshToken", { path: "/auth" });
   res.sendStatus(204);
 }
