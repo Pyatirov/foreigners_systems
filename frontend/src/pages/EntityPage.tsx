@@ -10,7 +10,7 @@ import { Box, IconButton, Typography } from "@mui/material";
 import { Add, Delete, Cancel } from "@mui/icons-material";
 import { StudentCard } from "../components/ui/StudentCard";
 import { buildFormData } from "../api/buildFormData";
-import axios from "axios";
+import { api } from "../api/axios";
 
 interface EntityPageProps<T> {
   config: EntityConfig<T>;
@@ -72,7 +72,17 @@ export const EntityPage = <T extends Record<string, any>>({ config }: EntityPage
         }
       });
 
-      const response = await axios.get(config.endpoint, { params });
+      // Extract path from endpoint (axios instance has baseURL: "http://localhost:5000/api")
+      // endpoint format: http://localhost:5000/api/students -> extract /students
+      let endpointPath: string;
+      if (config.endpoint.includes('/api/')) {
+        endpointPath = '/' + config.endpoint.split('/api/')[1];
+      } else if (config.endpoint.startsWith('http')) {
+        endpointPath = config.endpoint.replace(/^https?:\/\/[^/]+/, '');
+      } else {
+        endpointPath = config.endpoint.startsWith('/') ? config.endpoint : '/' + config.endpoint;
+      }
+      const response = await api.get(endpointPath, { params });
 
       setData(response.data as T[]);
     } catch (err) {
@@ -101,14 +111,27 @@ export const EntityPage = <T extends Record<string, any>>({ config }: EntityPage
     setDeleteDialogOpen(true); // открываем диалог подтверждения удаления
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (deletingItem) {
       const id = deletingItem._id || deletingItem.id;
-      fetch(`${config.endpoint}/${id}`, { method: "DELETE" }).then(() => {
+      try {
+        // Extract path from endpoint (axios instance has baseURL: "http://localhost:5000/api")
+        let endpointPath: string;
+        if (config.endpoint.includes('/api/')) {
+          endpointPath = '/' + config.endpoint.split('/api/')[1];
+        } else if (config.endpoint.startsWith('http')) {
+          endpointPath = config.endpoint.replace(/^https?:\/\/[^/]+/, '');
+        } else {
+          endpointPath = config.endpoint.startsWith('/') ? config.endpoint : '/' + config.endpoint;
+        }
+        await api.delete(`${endpointPath}/${id}`);
         loadData();
         setDeleteDialogOpen(false);
         setDeletingItem(null);
-      });
+      } catch (err) {
+        console.error("Delete error:", err);
+        setError("Ошибка удаления данных");
+      }
     }
   };
 
@@ -245,7 +268,7 @@ export const EntityPage = <T extends Record<string, any>>({ config }: EntityPage
         </Box>
       </Box>
 
-      {config.filters && (
+      {config.filters && (  // фильтры есть
         <FiltersForm
           open={filtersOpen}
           filters={config.filters}
@@ -264,19 +287,19 @@ export const EntityPage = <T extends Record<string, any>>({ config }: EntityPage
         />
       )}
 
-      {error && 
+      {error &&  // вылезла ошибка
         <Box sx={{ bgcolor: "#ffebee", color: "#c62828", p: 2, borderRadius: 1 }}>
           {error}
         </Box>}
 
-      {loading && !error && 
+      {loading && !error &&  // загружаемся и ошибки нет
         <Box sx={{ p: 3, textAlign: "center", color: "text.secondary" }}>
           <Typography variant="body1">
             Загрузка...
           </Typography>
         </Box>}
         
-      {!loading && (data?.length ?? 0) === 0 && !error && (
+      {!loading && (data?.length ?? 0) === 0 && !error && (  // загружаемся без ошибки, но данных нет
         <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 1, mt: 2 }}>
           <Typography variant="body1" sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             Данные отсутствуют. Нажмите кнопку
@@ -301,7 +324,7 @@ export const EntityPage = <T extends Record<string, any>>({ config }: EntityPage
       )}
 
 
-      {!loading && (data?.length ?? 0) > 0 && (
+      {!loading && (data?.length ?? 0) > 0 && (  // загружаемся без ошибки, данные есть
         <DataTable
           data={data}
           columns={config.columns.map(col => ({ field: String(col.field), headerName: col.headerName }))}
