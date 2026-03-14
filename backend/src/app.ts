@@ -17,6 +17,8 @@ import { router as arrivalNoticeRouter } from "./routes/arrivalNoticeRoutes"
 import { router as eduAgreementRouter } from "./routes/eduAgreementRoutes"
 import { router as termNoticeRouter } from "./routes/termNoticeRoutes"
 import { router as authRouter } from "./routes/auth.routes"
+import { requestLogger } from "./middleware/requestLogger"
+import { errorHandler } from "./utils/errorHandler"
 
 dotenv.config()
 
@@ -62,6 +64,8 @@ app.use(cors({
   credentials: true,               // <--- обязательно для cookie
 }));
 
+app.use(requestLogger)
+
 // Serve static files from uploads directory
 app.use('/uploads', express.static('uploads'));
 
@@ -86,6 +90,8 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   }
   next();
 });
+
+app.use(errorHandler)
 
 const startServer = async () => {
   await connectDB();
