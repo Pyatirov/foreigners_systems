@@ -6,7 +6,7 @@ import { EntityForm } from "../components/ui/EntityForm";
 import { DeleteConfirmDialog } from "../components/ui/DeleteConfirmDialog";
 import { FiltersForm } from "../components/ui/FiltersForm";
 import type { EntityApi, EntityConfig } from "../types/entities";
-import { Box, IconButton, Typography } from "@mui/material";
+import { Box, IconButton, Typography, Tooltip } from "@mui/material";
 import { Add, Delete, Cancel } from "@mui/icons-material";
 import { StudentCard } from "../components/ui/StudentCard";
 import { buildFormData } from "../api/buildFormData";
@@ -17,26 +17,28 @@ interface EntityPageProps<T> {
 }
 
 export const EntityPage = <T extends Record<string, any>>({ config }: EntityPageProps<T>) => {
-  const [query, setQuery] = useState("");
-  const [data, setData] = useState<T[]>([]);
-  const [formOpen, setFormOpen] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [multiDeleteDialogOpen, setMultiDeleteDialogOpen] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [editingItem, setEditingItem] = useState<T | null>(null);
-  const [deletingItem, setDeletingItem] = useState<T | null>(null);
-  const [page, setPage] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [filtersOpen, setFiltersOpen] = useState(false);
-  const [filtersApplied, setFiltersApplied] = useState<Record<string, any>>({});
-  const [filtersDraft, setFiltersDraft] = useState<Record<string, any>>({});
+  const [query, setQuery]                                     = useState("");
+  const [data, setData]                                       = useState<T[]>([]);
+  const [formOpen, setFormOpen]                               = useState(false);
+  const [error, setError]                                     = useState<string | null>(null);
+  const [loading, setLoading]                                 = useState(false);
+  const [editingItem, setEditingItem]                         = useState<T | null>(null);
+  const [deletingItem, setDeletingItem]                       = useState<T | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen]               = useState(false);
+  const [multiDeleteDialogOpen, setMultiDeleteDialogOpen]     = useState(false);
+  const [page, setPage]                                       = useState(0);
+
+  const [filtersOpen, setFiltersOpen]                         = useState(false);
+  const [filtersApplied, setFiltersApplied]                   = useState<Record<string, any>>({});
+  const [filtersDraft, setFiltersDraft]                       = useState<Record<string, any>>({});
 
   // Состояния для мультивыбора
-  const [multiSelectMode, setMultiSelectMode] = useState(false);
-  const [selectedRows, setSelectedRows] = useState<any[]>([]);
-  const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
-  const [cardOpen, setCardOpen] = useState(false);
-  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [multiSelectMode, setMultiSelectMode]                 = useState(false);
+  const [selectedRows, setSelectedRows]                       = useState<any[]>([]);
+  const [selectedStudent, setSelectedStudent]                 = useState<string | null>(null);
+  
+  const [cardOpen, setCardOpen]                               = useState(false);
+  const [photoFile, setPhotoFile]                             = useState<File | null>(null);
 
   // Строим строку запроса с учетом пагинации, поиска и фильтров
   const buildQueryParams = () => {
@@ -200,40 +202,42 @@ export const EntityPage = <T extends Record<string, any>>({ config }: EntityPage
     <Box sx={{ width: "100%", display: "flex", flexDirection: "column", gap: 2 }}>
       <Box display="flex" alignItems="flex-end" justifyContent="space-between" gap={2}>
         <Box>
-          <IconButton
-            color="primary"
-            onClick={() => setFiltersOpen(v => !v)}
-            size="large"
-            sx={{
-              bgcolor: "primary.main",
-              color: "white",
-              "&:hover": { bgcolor: "primary.dark" },
-              position: "relative",
-            }}
-          >
-            <FilterList />
-            {activeFiltersCount > 0 && (
-              <Box
-                sx={{
-                  position: "absolute",
-                  top: 4,
-                  right: 4,
-                  bgcolor: "secondary.main",
-                  color: "white",
-                  borderRadius: "50%",
-                  width: 18,
-                  height: 18,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 10,
-                  fontWeight: "bold",
-                }}
-              >
-                {activeFiltersCount}
-              </Box>
-            )}
-          </IconButton>
+          <Tooltip title="Фильтры">
+            <IconButton
+              color="primary"
+              onClick={() => setFiltersOpen(v => !v)}
+              size="large"
+              sx={{
+                bgcolor: "primary.main",
+                color: "white",
+                "&:hover": { bgcolor: "primary.dark" },
+                position: "relative",
+              }}
+            >
+              <FilterList />
+              {activeFiltersCount > 0 && (
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: 4,
+                    right: 4,
+                    bgcolor: "secondary.main",
+                    color: "white",
+                    borderRadius: "50%",
+                    width: 18,
+                    height: 18,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 10,
+                    fontWeight: "bold",
+                  }}
+                >
+                  {activeFiltersCount}
+                </Box>
+              )}
+              </IconButton>
+          </Tooltip>
         </Box>
 
         <Box sx={{ flex: 1 }}>
@@ -241,30 +245,37 @@ export const EntityPage = <T extends Record<string, any>>({ config }: EntityPage
         </Box>
 
         <Box display="flex" gap={1}>
-          <IconButton
-            color="primary"
-            onClick={() => setFormOpen(true)}
-            size="large"
-            sx={{
-              bgcolor: "primary.main",
-              color: "white",
-              "&:hover": { bgcolor: "primary.dark" },
-            }}
-          >
-            <Add />
-          </IconButton>
-          <IconButton
-            color={multiSelectMode ? "secondary" : "primary"}
-            onClick={toggleMultiSelectMode}
-            size="large"
-            sx={{
-              bgcolor: multiSelectMode ? "secondary.main" : "primary.main",
-              color: "white",
-              "&:hover": { bgcolor: multiSelectMode ? "secondary.dark" : "primary.dark" },
-            }}
-          >
-            <Delete />
-          </IconButton>
+
+          <Tooltip title="Добавить запись">
+            <IconButton
+              color="primary"
+              onClick={() => setFormOpen(true)}
+              size="large"
+              
+              sx={{
+                bgcolor: "primary.main",
+                color: "white",
+                "&:hover": { bgcolor: "primary.dark" },
+              }}
+            >
+              <Add/>
+            </IconButton>
+          </Tooltip>
+
+          <Tooltip title="Удалить выбранные записи">
+            <IconButton
+              color={multiSelectMode ? "secondary" : "primary"}
+              onClick={toggleMultiSelectMode}
+              size="large"
+              sx={{
+                bgcolor: multiSelectMode ? "secondary.main" : "primary.main",
+                color: "white",
+                "&:hover": { bgcolor: multiSelectMode ? "secondary.dark" : "primary.dark" },
+              }}
+            >
+              <Delete />
+            </IconButton>
+          </Tooltip>
         </Box>
       </Box>
 

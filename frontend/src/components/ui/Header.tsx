@@ -53,10 +53,15 @@ const Header = () => {
           bgcolor: "#1D1D1D",
           px: 3,
           py: 1,
+          borderBottom: "1px solid #b7a284",
         }}
       >
         {/* ЛЕВАЯ ЧАСТЬ — ЛОГО */}
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+        <Box 
+          sx={{ 
+            display: "flex", 
+            alignItems: "center", 
+            gap: 2 }}>
           <img src={logo} alt="Logo" style={{ height: 50 }} />
         </Box>
 
@@ -99,7 +104,7 @@ const Header = () => {
         </Box>
       </Box>
 
-      <AppBar position="static" sx={{ bgcolor: "#1D1D1D", boxShadow: 3, }} >
+      <AppBar position="static" sx={{ bgcolor: "#1D1D1D", boxShadow: 3 }} >
         <Tabs value={currentTab} centered
           sx={{
             "& .MuiTab-root": {
