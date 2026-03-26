@@ -3,16 +3,16 @@ import MainLayout from "../components/layout/MainLayout";
 import { EntityPage } from "../pages/EntityPage";
 import { AuthPage } from "../pages/AuthPage";
 import { PrivateRoute } from "./SecuteRoute";
-import { createStudent, deleteStudent, getStudentById, getStudents, updateStudent } from "../api/student.api";
-import { createPassport, deletePassport, getPassportById, getPassports, updatePassport } from "../api/passport.api";
-import { createVisa, deleteVisa, getVisaById, getVisas, updateVisa } from "../api/visa.api";
-import { deleteEducation, getEducation, getEducationById, updateEducation, createEducation } from "../api/education.api";
-import { createPetition, deletePetition, getPetitionById, updatePetition, getPetitions } from "../api/petition.api";
-import { createMedicalReport, deleteMedicalReport, getMedicalReportById, getMedicalReports, updateMedicalReport } from "../api/medicalReport";
-import { createMigrationCard, deleteMigrationCard, getMigrationCardById, updateMigrationCard, getMigrationCards } from "../api/migrationCard";
-import { createArrivalNotice, deleteArrivalNotice, getArrivalNotices, getArrivalNoticeById, updateArrivalNotice } from "../api/arrivalNotice.api";
-import { createEduAgreement, deleteEduAgreement, getEduAgreementById, getEduAgreements, updateEduAgreement } from "../api/eduAgreement.api";
-import { createTermNotice, deleteTermNotice, getTermNoticeById, getTermNotices, updateTermNotice } from "../api/termNotice.api";
+import { createStudent, deleteStudent, getStudentById, getStudents, updateStudent } from "../models/student.api";
+import { createPassport, deletePassport, getPassportById, getPassports, updatePassport } from "../models/passport.api";
+import { createVisa, deleteVisa, getVisaById, getVisas, updateVisa } from "../models/visa.api";
+import { deleteEducation, getEducation, getEducationById, updateEducation, createEducation } from "../models/education.api";
+import { createPetition, deletePetition, getPetitionById, updatePetition, getPetitions } from "../models/petition.api";
+import { createMedicalReport, deleteMedicalReport, getMedicalReportById, getMedicalReports, updateMedicalReport } from "../models/medicalReport.api";
+import { createMigrationCard, deleteMigrationCard, getMigrationCardById, updateMigrationCard, getMigrationCards } from "../models/migrationCard.api";
+import { createArrivalNotice, deleteArrivalNotice, getArrivalNotices, getArrivalNoticeById, updateArrivalNotice } from "../models/arrivalNotice.api";
+import { createEduAgreement, deleteEduAgreement, getEduAgreementById, getEduAgreements, updateEduAgreement } from "../models/eduAgreement.api";
+import { createTermNotice, deleteTermNotice, getTermNoticeById, getTermNotices, updateTermNotice } from "../models/termNotice.api";
 
 const api = import.meta.env.VITE_API_URL;
 
