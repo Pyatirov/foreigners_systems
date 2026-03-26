@@ -3,10 +3,11 @@ import { Edit, Delete, ArrowUpward, ArrowDownward} from "@mui/icons-material";
 import CountryFlag from "react-country-flag";
 import { COUNTRY_MAP } from "../../utils/countryMap";
 import React, { useState } from "react";
+import { TableContextMenu } from "./TableContextMenu";
 
 interface DataTableProps {
-  data: any[];
-  columns: { field: string; headerName: string }[];
+  data: any[];  // массив объектов с данными для отображения
+  columns: { field: string; headerName: string }[]; // описание колонок: field - имя поля в данных, headerName - отображаемое название
   onEdit?: (row: any) => void;
   onDelete?: (row: any) => void;
   page?: number;
@@ -75,6 +76,16 @@ export const DataTable: React.FC<DataTableProps> = ({
 }) => {
   const [sortField, setSortField] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [contextMenu, setContextMenu] = useState<{
+    mouseX: number;
+    mouseY: number;
+    row: any;
+  } | null>(null);
+
+  const handleContextMenu = (e: React.MouseEvent, row: any) => {
+    e.preventDefault();
+    setContextMenu({ mouseX: e.clientX, mouseY: e.clientY, row });
+  };
 
   const totalRows = data.length;
   const startRow = totalRows === 0 ? 0 : page * rowsPerPage + 1;
@@ -178,9 +189,17 @@ export const DataTable: React.FC<DataTableProps> = ({
           <TableBody>
             {paginatedData.length > 0 ? (
               paginatedData.map((row, index) => (
-                <TableRow key={row._id || index} selected={selectedRows.includes(row.id)} onClick={() => 
-                  onRowClick?.(row)} 
-                    sx={{ cursor: onRowClick ? "pointer" : "default", ":hover": { backgroundColor: "secondary.main", transition: "0.3s ease" } }}>
+                <TableRow 
+                  key={row._id || index} 
+                  selected={selectedRows.includes(row.id)} 
+                  onClick={() => onRowClick?.(row)} 
+                  onContextMenu={(e) => handleContextMenu(e, row)} 
+                  sx={{ 
+                    cursor: onRowClick ? "pointer" : "default", 
+                    ":hover": { 
+                      backgroundColor: "secondary.main", 
+                      transition: "0.3s ease" } 
+                      }}>
                   {multiSelectMode && (
                     <TableCell>
                       <Checkbox
@@ -286,6 +305,12 @@ export const DataTable: React.FC<DataTableProps> = ({
           />
         )}
       </Paper>
+      <TableContextMenu
+        contextMenu={contextMenu}
+        onClose={() => setContextMenu(null)}
+        onEdit={onEdit}
+        onDelete={onDelete}
+      />
     </Box>
   );
 };
