@@ -7,11 +7,11 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import "dayjs/locale/ru";
-import type { EntityConfig, EntityField, EntityApi } from "../../types/entities";
+import type { EntityConfig, EntityField, EntityApi, Entity } from "../../types/entities";
 import React from "react";
 import { COUNTRY_MAP, COUNTRY_OPTIONS } from "../../utils/countryMap";
 
-interface EntityFormProps<T> {
+interface EntityFormProps<T extends Entity> {
   open: boolean;
   onClose: () => void;
   api: EntityApi<T>;
@@ -24,7 +24,7 @@ interface EntityFormProps<T> {
 
 dayjs.locale("ru");
 
-export const EntityForm = <T extends Record<string, any>>({
+export const EntityForm = <T extends Entity>({
   open,
   onClose,
   onSubmit,
