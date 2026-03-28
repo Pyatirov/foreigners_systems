@@ -1,27 +1,27 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useDebounce } from "use-debounce";
 import { SearchBar } from "../components/ui/SearchBar";
 import { FilterList } from "@mui/icons-material";
-import { DataTable } from "../components/ui/DataTable";
+import { DataTable } from "../components/ui/DataTable/DataTable";
 import { EntityForm } from "../components/ui/EntityForm";
 import { DeleteConfirmDialog } from "../components/ui/DeleteConfirmDialog";
 import { FiltersForm } from "../components/ui/FiltersForm";
-import type { EntityApi, EntityConfig } from "../types/entities";
-import { Box, IconButton, Typography, Tooltip } from "@mui/material";
+import type { Entity, EntityApi, EntityConfig } from "../types/entities";
+import { Box, Button, IconButton, Typography, Tooltip, CircularProgress } from "@mui/material";
 import { Add, Delete, Cancel } from "@mui/icons-material";
 import { StudentCard } from "../components/ui/StudentCard";
 import { buildFormData } from "../api/buildFormData";
-import { api } from "../api/axios";
+import { DEBOUNCE_MS, ROWS_PER_PAGE } from "../constants/index";
+import { ErrorBox } from "../components/ui/ErrorBox";
 
-interface EntityPageProps<T> {
-  config: EntityConfig<T>;
-}
-
-export const EntityPage = <T extends Record<string, any>>({ config }: EntityPageProps<T>) => {
-  const [query, setQuery]                                     = useState("");
-  const [data, setData]                                       = useState<T[]>([]);
-  const [formOpen, setFormOpen]                               = useState(false);
-  const [error, setError]                                     = useState<string | null>(null);
+export const EntityPage = <T extends Entity>({ config }: { config: EntityConfig<T> }) => {
   const [loading, setLoading]                                 = useState(false);
+  const [error, setError]                                     = useState<string | null>(null);
+  const [data, setData]                                       = useState<T[]>([]);
+  const [query, setQuery]                                     = useState("");
+  const [debouncedQuery]                                      = useDebounce(query, DEBOUNCE_MS);
+  const [total, setTotal]                                     = useState(0);
+  const [formOpen, setFormOpen]                               = useState(false);
   const [editingItem, setEditingItem]                         = useState<T | null>(null);
   const [deletingItem, setDeletingItem]                       = useState<T | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen]               = useState(false);
@@ -36,104 +36,61 @@ export const EntityPage = <T extends Record<string, any>>({ config }: EntityPage
   const [multiSelectMode, setMultiSelectMode]                 = useState(false);
   const [selectedRows, setSelectedRows]                       = useState<any[]>([]);
   const [selectedStudent, setSelectedStudent]                 = useState<string | null>(null);
-  
+
   const [cardOpen, setCardOpen]                               = useState(false);
   const [photoFile, setPhotoFile]                             = useState<File | null>(null);
 
-  // Строим строку запроса с учетом пагинации, поиска и фильтров
-  const buildQueryParams = () => {
-    const params = new URLSearchParams(); // Используем URLSearchParams для удобства
-
-    if (query) params.set("search", query); // предполагается, что API поддерживает параметр "search"
-    params.set("page", String(page + 1)); // предполагается, что API использует 1-индексацию страниц
-    params.set("limit", "10"); // фиксированное количество элементов на страницу
-
-    Object.entries(filtersApplied).forEach(([key, value]) => { // добавляем только непустые фильтры
-      if (value !== undefined && value !== null && value !== "") { // проверяем на непустое значение
-        params.set(key, String(value)); // предполагается, что API поддерживает фильтрацию по этим параметрам
-      }
-    });
-
-    return params.toString(); // возвращаем строку запроса
-  };
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const params: Record<string, string | number> = {};
+      const params = {
+        page: page + 1,
+        limit: ROWS_PER_PAGE,
+        ...(debouncedQuery && { search: debouncedQuery }),
+        ...Object.fromEntries(
+        Object.entries(filtersApplied).filter(([, v]) => v != null && v !== ""))
+      };
 
-      if (query) params.search = query;
-      params.page = page + 1;
-      params.limit = 10;
-
-      Object.entries(filtersApplied).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && value !== "") {
-          params[key] = String(value);
-        }
-      });
-
-      // Extract path from endpoint (axios instance has baseURL: "http://localhost:5000/api")
-      // endpoint format: http://localhost:5000/api/students -> extract /students
-      let endpointPath: string;
-      if (config.endpoint.includes('/api/')) {
-        endpointPath = '/' + config.endpoint.split('/api/')[1];
-      } else if (config.endpoint.startsWith('http')) {
-        endpointPath = config.endpoint.replace(/^https?:\/\/[^/]+/, '');
-      } else {
-        endpointPath = config.endpoint.startsWith('/') ? config.endpoint : '/' + config.endpoint;
-      }
-      const response = await api.get(endpointPath, { params });
-
-      setData(response.data as T[]);
+      const { items, total } = await config.api.getAll(params);
+      setData(items);
+      setTotal(total);
     } catch (err) {
-      console.error("loadData error:", err);
       setError("Ошибка загрузки данных");
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, debouncedQuery, config.api, filtersApplied]);
 
   useEffect(() => {
     loadData();
-  }, [config.endpoint, page, query, filtersApplied]);
+  }, [loadData]);
 
   useEffect(() => {
     setPage(0);
-  }, [query, filtersApplied]);
+  }, [debouncedQuery, filtersApplied]);
 
-  const handleEdit = (item: T) => {
-    setEditingItem(item); // устанавливаем редактируемый элемент
-    setFormOpen(true); // открываем форму
-  };
+  const handleEdit = useCallback((item: T) => {
+    setEditingItem(item);
+    setFormOpen(true);        
+  }, []);
 
-  const handleDelete = (item: T) => {
-    setDeletingItem(item); // устанавливаем удаляемый элемент
-    setDeleteDialogOpen(true); // открываем диалог подтверждения удаления
-  };
+  const handleDelete = useCallback((item: T) => {
+    setDeletingItem(item);            
+    setDeleteDialogOpen(true);
+  }, []);
 
   const handleConfirmDelete = async () => {
-    if (deletingItem) {
-      const id = deletingItem._id || deletingItem.id;
-      try {
-        // Extract path from endpoint (axios instance has baseURL: "http://localhost:5000/api")
-        let endpointPath: string;
-        if (config.endpoint.includes('/api/')) {
-          endpointPath = '/' + config.endpoint.split('/api/')[1];
-        } else if (config.endpoint.startsWith('http')) {
-          endpointPath = config.endpoint.replace(/^https?:\/\/[^/]+/, '');
-        } else {
-          endpointPath = config.endpoint.startsWith('/') ? config.endpoint : '/' + config.endpoint;
-        }
-        await api.delete(`${endpointPath}/${id}`);
-        loadData();
-        setDeleteDialogOpen(false);
-        setDeletingItem(null);
-      } catch (err) {
-        console.error("Delete error:", err);
-        setError("Ошибка удаления данных");
-      }
+    if (!deletingItem) return;
+    const id = deletingItem._id ?? deletingItem.id;
+    try {
+      await config.api.delete(id);
+      setDeleteDialogOpen(false);
+      setDeletingItem(null);
+      loadData();
+    } catch {
+      setError("Ошибка удаления");
     }
   };
 
@@ -185,7 +142,7 @@ export const EntityPage = <T extends Record<string, any>>({ config }: EntityPage
 
   const toggleSelectAll = (ids: any[]) => {
     const allSelected = ids.every(id => selectedRows.includes(id));
-    setSelectedRows(allSelected ? [] : [...new Set([...selectedRows, ...ids])]);
+    setSelectedRows(allSelected ? [] : ids);
   };
 
 
@@ -298,23 +255,27 @@ export const EntityPage = <T extends Record<string, any>>({ config }: EntityPage
         />
       )}
 
-      {error &&  // вылезла ошибка
-        <Box sx={{ bgcolor: "#ffebee", color: "#c62828", p: 2, borderRadius: 1 }}>
-          {error}
-        </Box>}
+      <ErrorBox message={error} />
 
       {loading && !error &&  // загружаемся и ошибки нет
-        <Box sx={{ p: 3, textAlign: "center", color: "text.secondary" }}>
-          <Typography variant="body1">
-            Загрузка...
-          </Typography>
+        <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 2 }}>
+          <CircularProgress />
         </Box>}
         
       {!loading && (data?.length ?? 0) === 0 && !error && (  // загружаемся без ошибки, но данных нет
         <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 1, mt: 2 }}>
           <Typography variant="body1" sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             Данные отсутствуют. Нажмите кнопку
-            <IconButton color="primary" onClick={() => setFormOpen(true)} size="small" sx={{ bgcolor: "primary.main", color: "white", "&:hover": { bgcolor: "primary.dark" } }}>
+            <IconButton color="primary" 
+                        onClick={() => setFormOpen(true)} 
+                        size="small" 
+                        sx={{ 
+                          bgcolor: "primary.main", 
+                          color: "white", 
+                          "&:hover": { 
+                            bgcolor: "primary.dark" } 
+                        }}
+              >
               <Add />
             </IconButton>
             чтобы добавить новую запись.
@@ -323,14 +284,35 @@ export const EntityPage = <T extends Record<string, any>>({ config }: EntityPage
       )}
 
       {multiSelectMode && (
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-          <Typography variant="body2">Выбрано {selectedRows.length} объектов</Typography>
-          <IconButton size="small" color="default" onClick={cancelMultiSelect}>
-            <Cancel />
-          </IconButton>
-          <IconButton size="small" color="error" onClick={confirmMultiDelete}>
-            <Delete />
-          </IconButton>
+        <Box sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 2,
+          p: 1.5,
+          borderRadius: 1,
+          bgcolor: "background.paper",
+          boxShadow: 1,
+        }}>
+          <Typography variant="subtitle1" fontWeight="bold" sx={{ flex: 1 }}>
+            Выбрано: {selectedRows.length}
+          </Typography>
+          <Button
+            variant="outlined"
+            color="inherit"
+            startIcon={<Cancel />}
+            onClick={cancelMultiSelect}
+          >
+            Отмена
+          </Button>
+          <Button
+            variant="contained"
+            color="error"
+            startIcon={<Delete />}
+            onClick={() => setMultiDeleteDialogOpen(true)}
+            disabled={selectedRows.length === 0}
+          >
+            Удалить
+          </Button>
         </Box>
       )}
 
@@ -344,15 +326,15 @@ export const EntityPage = <T extends Record<string, any>>({ config }: EntityPage
           page={page}
           onPageChange={handlePageChange}
           onRowClick={(row) => {
-            console.log("Row clicked:", row);
             setSelectedStudent(row._id);
             setCardOpen(true);
           }}
-          rowsPerPage={10}
+          rowsPerPage={ROWS_PER_PAGE}
+          totalRows={total}
           multiSelectMode={multiSelectMode}
           selectedRows={selectedRows}
           toggleSelectRow={toggleSelectRow}
-          toggleSelectAll={() => toggleSelectAll(data.map(d => d.id || d._id))}
+          toggleSelectAll={() => toggleSelectAll(data.map(d => d._id ?? d.id))}
           cancelMultiSelect={cancelMultiSelect}
           confirmMultiDelete={confirmMultiDelete}
         />
