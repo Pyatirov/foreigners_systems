@@ -1,16 +1,16 @@
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, Typography } from "@mui/material";
-import type { EntityConfig } from "../../types/entities";
+import type { Entity, EntityConfig } from "../../types/entities";
 
-interface DeleteConfirmDialogProps<T> {
+interface DeleteConfirmDialogProps<T extends Entity> {
   open: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  item?: T | { _id: string; name: string }; // <-- тут
+  item?: T | { _id: string; name: string };
   config: EntityConfig<T>;
 }
 
 
-export const DeleteConfirmDialog = <T extends Record<string, any>>({
+export const DeleteConfirmDialog = <T extends Entity>({
   open,
   onClose,
   onConfirm,
@@ -25,7 +25,7 @@ export const DeleteConfirmDialog = <T extends Record<string, any>>({
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle>Delete {config.title}</DialogTitle>
+      <DialogTitle>Удаление</DialogTitle>
       <DialogContent>
         <Box sx={{ py: 2 }}>
           <Typography variant="body1" sx={{ mb: 2 }}>
