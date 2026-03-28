@@ -1,11 +1,14 @@
-import { Box, Paper, Typography, TextField, Button, Tabs, Tab, Select, MenuItem, FormControl, InputLabel } from "@mui/material";
+import { Box, Paper, Typography, TextField, Button, Tabs, Tab, Select, MenuItem, FormControl, InputLabel, InputAdornment, IconButton } from "@mui/material";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { loginRequest, registerRequest } from "../api/auth.api"; // предполагаем функцию регистрации
+import { loginRequest, registerRequest } from "../api/auth.api";
 import { useAuth } from "../context/AuthContext";
+import { Visibility, VisibilityOff, Clear } from "@mui/icons-material";
+import { ErrorBox } from "../components/ui/ErrorBox";
 
 export const AuthPage = () => {
   const navigate = useNavigate();
+  
   const { login, user } = useAuth();
 
   const [tab, setTab] = useState(0); // 0 = Вход, 1 = Регистрация
@@ -14,6 +17,8 @@ export const AuthPage = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [role, setRole] = useState("user");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);
@@ -51,10 +56,9 @@ export const AuthPage = () => {
         return;
       }
       await registerRequest({ email, password, role });
-      // После успешной регистрации сразу логиним пользователя
-      // const accessToken = await loginRequest({ email, password });
-      // login(accessToken);
-      //navigate("/", { replace: true });
+      const accessToken = await loginRequest({ email, password });
+      login(accessToken);
+      navigate("/", { replace: true });
     } catch (err: any) {
       setError("Ошибка регистрации или пользователь уже существует");
     }
@@ -84,7 +88,14 @@ export const AuthPage = () => {
           }}
           elevation={3}
         >
-          <Tabs value={tab} onChange={handleTabChange} variant="fullWidth" sx={{ BorderAll: "0px"}}>
+          <Tabs value={tab} 
+            onChange={handleTabChange} 
+            variant="fullWidth" 
+            sx={{
+              "& .MuiTab-root:focus": { outline: "none" },
+              "& .MuiTab-root.Mui-focusVisible": { outline: "none" },
+            }}
+          >
             <Tab label="Войти" />
             <Tab label="Зарегистрироваться" />
           </Tabs>
@@ -114,29 +125,69 @@ export const AuthPage = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             fullWidth
+            slotProps={{
+              input: {
+                endAdornment: email && (
+                  <InputAdornment position="end">
+                    <IconButton onClick={() => setEmail("")} edge="end" size="small">
+                      <Clear fontSize="small" />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              },
+            }}
           />
           <TextField
             label="Пароль"
-            type="password"
+            type={showPassword ? "text" : "password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             fullWidth
+            autoComplete="new-password"
+            slotProps={{
+              input: {
+                endAdornment: (
+                  <InputAdornment position="end">
+                    {password && (
+                      <IconButton onClick={() => setPassword("")} edge="end" size="small">
+                        <Clear fontSize="small" />
+                      </IconButton>
+                    )}
+                    <IconButton onClick={() => setShowPassword(v => !v)} edge="end" size="small">
+                      {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              },
+            }}
           />
           {tab === 1 && (
             <TextField
               label="Повторите пароль"
-              type="password"
+              type={showPassword ? "text" : "password"}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               fullWidth
+              slotProps={{
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      {confirmPassword && (
+                        <IconButton onClick={() => setConfirmPassword("")} edge="end" size="small">
+                          <Clear fontSize="small" />
+                        </IconButton>
+                      )}
+                      <IconButton onClick={() => setShowConfirmPassword(v => !v)} edge="end" size="small">
+                        {showConfirmPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
+              }}
             />
           )}
 
-          {error && (
-            <Typography color="error" fontSize={14}>
-              {error}
-            </Typography>
-          )}
+          <ErrorBox message={error} />
 
           <Button
             variant="contained"
