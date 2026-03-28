@@ -3,16 +3,16 @@ import MainLayout from "../components/layout/MainLayout";
 import { EntityPage } from "../pages/EntityPage";
 import { AuthPage } from "../pages/AuthPage";
 import { PrivateRoute } from "./SecuteRoute";
-import { createStudent, deleteStudent, getStudentById, getStudents, updateStudent } from "../models/student.api";
-import { createPassport, deletePassport, getPassportById, getPassports, updatePassport } from "../models/passport.api";
-import { createVisa, deleteVisa, getVisaById, getVisas, updateVisa } from "../models/visa.api";
-import { deleteEducation, getEducation, getEducationById, updateEducation, createEducation } from "../models/education.api";
-import { createPetition, deletePetition, getPetitionById, updatePetition, getPetitions } from "../models/petition.api";
-import { createMedicalReport, deleteMedicalReport, getMedicalReportById, getMedicalReports, updateMedicalReport } from "../models/medicalReport.api";
-import { createMigrationCard, deleteMigrationCard, getMigrationCardById, updateMigrationCard, getMigrationCards } from "../models/migrationCard.api";
-import { createArrivalNotice, deleteArrivalNotice, getArrivalNotices, getArrivalNoticeById, updateArrivalNotice } from "../models/arrivalNotice.api";
-import { createEduAgreement, deleteEduAgreement, getEduAgreementById, getEduAgreements, updateEduAgreement } from "../models/eduAgreement.api";
-import { createTermNotice, deleteTermNotice, getTermNoticeById, getTermNotices, updateTermNotice } from "../models/termNotice.api";
+import { studentApi } from "../api/student.api";
+import { passportApi } from "../api/passport.api";
+import { visaApi } from "../api/visa.api";
+import { educationApi } from "../api/education.api";
+import { petitionApi } from "../api/petition.api";
+import { medicalReportApi } from "../api/medicalReport.api";
+import { migrationCardApi } from "../api/migrationCard.api";
+import { arrivalNoticeApi } from "../api/arrivalNotice.api";
+import { eduAgreementApi } from "../api/eduAgreement.api";
+import { termNoticeApi } from "../api/termNotice.api";
 
 const api = import.meta.env.VITE_API_URL;
 
@@ -58,11 +58,11 @@ const AppRouter = () => (
                       ]}
                     ],
                     api: {
-                      getAll: getStudents,
-                      getById: getStudentById,
-                      create: createStudent,
-                      update: updateStudent,
-                      delete: deleteStudent,
+                      getAll: studentApi.getAll,
+                      getById: studentApi.getById,
+                      create: studentApi.create,
+                      update: studentApi.update,
+                      delete: studentApi.delete,
                     },
                   }} 
                 />} 
@@ -88,11 +88,11 @@ const AppRouter = () => (
                       { name: "valid_to", label: "Срок окончания действия", type: "date" }
                     ],
                     api: {
-                      getAll: getPassports,
-                      getById: getPassportById,
-                      create: createPassport,
-                      update: updatePassport,
-                      delete: deletePassport,
+                      getAll: passportApi.getAll,
+                      getById: passportApi.getById,
+                      create: passportApi.create,
+                      update: passportApi.update,
+                      delete: passportApi.delete,
                     },
                   }} 
                 />} 
@@ -118,11 +118,11 @@ const AppRouter = () => (
                       { name: "expiry_date", label: "Дата истечения", type: "date" }
                     ],
                     api: {
-                      getAll: getVisas,
-                      getById: getVisaById,
-                      create: createVisa,
-                      update: updateVisa,
-                      delete: deleteVisa,
+                      getAll: visaApi.getAll,
+                      getById: visaApi.getById,
+                      create: visaApi.create,
+                      update: visaApi.update,
+                      delete: visaApi.delete,
                     },
                   }} 
                 />} 
@@ -146,11 +146,11 @@ const AppRouter = () => (
                       { name: "graduation_date", label: "Дата окончания", type: "date", required: true }
                     ],
                     api: {
-                      getAll: getEducation,
-                      getById: getEducationById,
-                      create: createEducation,
-                      update: updateEducation,
-                      delete: deleteEducation,
+                      getAll: educationApi.getAll,
+                      getById: educationApi.getById,
+                      create: educationApi.create,
+                      update: educationApi.update,
+                      delete: educationApi.delete,
                     },
                   }} 
                 />} 
@@ -176,11 +176,11 @@ const AppRouter = () => (
                       { name: "reason", label: "В связи с", type: "string", required: true }
                     ],
                     api: {
-                      getAll: getPetitions,
-                      getById: getPetitionById,
-                      create: createPetition,
-                      update: updatePetition,
-                      delete: deletePetition,
+                      getAll: petitionApi.getAll,
+                      getById: petitionApi.getById,
+                      create: petitionApi.create,
+                      update: petitionApi.update,
+                      delete: petitionApi.delete,
                     },  
                   }} 
                 />} 
@@ -202,11 +202,11 @@ const AppRouter = () => (
                       { name: "number", label: "Номер", type: "number", required: true }
                     ],
                     api: {
-                      getAll: getMedicalReports,
-                      getById: getMedicalReportById,
-                      create: createMedicalReport,
-                      update: updateMedicalReport,
-                      delete: deleteMedicalReport,
+                      getAll: medicalReportApi.getAll,
+                      getById: medicalReportApi.getById,
+                      create: medicalReportApi.create,
+                      update: medicalReportApi.update,
+                      delete: medicalReportApi.delete,
                     },  
                   }} 
                 />} 
@@ -230,11 +230,11 @@ const AppRouter = () => (
                       { name: "end_date", label: "Конец срока пребывания", type: "date" }
                     ],
                     api: {
-                      getAll: getMigrationCards,
-                      getById: getMigrationCardById,
-                      create: createMigrationCard,
-                      update: updateMigrationCard,
-                      delete: deleteMigrationCard,
+                      getAll: migrationCardApi.getAll,
+                      getById: migrationCardApi.getById,
+                      create: migrationCardApi.create,
+                      update: migrationCardApi.update,
+                      delete: migrationCardApi.delete,
                     },  
                   }} 
                 />} 
@@ -252,11 +252,11 @@ const AppRouter = () => (
                       { name: "student", label: "Владелец", type: "string", required: true },
                     ],
                     api: {
-                      getAll: getArrivalNotices,
-                      getById: getArrivalNoticeById,
-                      create: createArrivalNotice,
-                      update: updateArrivalNotice,
-                      delete: deleteArrivalNotice,
+                      getAll: arrivalNoticeApi.getAll,
+                      getById: arrivalNoticeApi.getById,
+                      create: arrivalNoticeApi.create,
+                      update: arrivalNoticeApi.update,
+                      delete: arrivalNoticeApi.delete,
                     },  
                   }} 
                 />} 
@@ -274,11 +274,11 @@ const AppRouter = () => (
                       { name: "number", label: "Номер", type: "number", required: true },
                     ],
                     api: {
-                      getAll: getEduAgreements,
-                      getById: getEduAgreementById,
-                      create: createEduAgreement,
-                      update: updateEduAgreement,
-                      delete: deleteEduAgreement,
+                      getAll:  eduAgreementApi.getAll,
+                      getById: eduAgreementApi.getById,
+                      create: eduAgreementApi.create,
+                      update: eduAgreementApi.update,
+                      delete: eduAgreementApi.delete,
                     }, 
                   }} 
                 />} 
@@ -304,11 +304,11 @@ const AppRouter = () => (
                       { name: "reason", label: "Основание", type: "string", required: true }
                     ],
                     api: {
-                      getAll: getTermNotices,
-                      getById: getTermNoticeById,
-                      create: createTermNotice,
-                      update: updateTermNotice,
-                      delete: deleteTermNotice,
+                      getAll: termNoticeApi.getAll,
+                      getById: termNoticeApi.getById,
+                      create: termNoticeApi.create,
+                      update: termNoticeApi.update,
+                      delete: termNoticeApi.delete,
                     }, 
                   }} 
                 />} 
