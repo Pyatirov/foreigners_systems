@@ -1,15 +1,15 @@
 import { Box, Button, TextField, MenuItem, Collapse } from "@mui/material";
-import type{ EntityFilter } from "../../types/entities"
+import type{ Entity, EntityFilter } from "../../types/entities"
 
-interface Props<T> {
+interface Props<T extends Entity> {
   open: boolean;
   filters: EntityFilter<T>[];
-  values: Record<string, any>;
+  values: Entity;
   onChange: (field: string, value: any) => void;
   onApply: () => void;
 }
 
-export const FiltersPanel = <T extends Record<string, any>>({
+export const FiltersPanel = <T extends Entity>({
   open,
   filters,
   values,

@@ -1,19 +1,19 @@
 import { Box, Button, TextField, MenuItem, Dialog, DialogTitle, DialogContent, DialogActions, Typography } from "@mui/material";
 import CountryFlag from "react-country-flag";
-import type { EntityFilter } from "../../types/entities";
+import type { Entity, EntityFilter } from "../../types/entities";
 import { COUNTRY_MAP } from "../../utils/countryMap";
 
-interface FiltersFormProps<T> {
+interface FiltersFormProps<T extends Entity> {
   open: boolean;
   filters: EntityFilter<T>[];
-  values: Record<string, any>;
+  values: Entity;
   onChange: (field: string, value: any) => void;
   onApply: () => void;
   onReset: () => void;
   onClose: () => void;
 }
 
-export const FiltersForm = <T extends Record<string, any>>({
+export const FiltersForm = <T extends Entity>({
   open,
   filters,
   values,
