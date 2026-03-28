@@ -1,4 +1,4 @@
-export interface TPassport {
+export interface Passport {
   type: string;
   series: number;
   number: number,

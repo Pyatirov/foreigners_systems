@@ -1,4 +1,4 @@
-export interface TPetition {
+export interface TermNotice {
   district: string;
   object: string;
   reason: string;

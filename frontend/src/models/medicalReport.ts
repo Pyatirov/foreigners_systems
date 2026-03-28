@@ -1,8 +1,7 @@
-export interface TMigrationCard {
+export interface MedicalReport {
+  organization: string;
   series: number;
   number: number;
-  start_date: Date;
-  end_date: Date;
   scanUrl?: string;
   student?: string;
 }

@@ -1,4 +1,4 @@
-export interface TVisa {
+export interface Visa {
   country: string;
   type: string;
   number: string;

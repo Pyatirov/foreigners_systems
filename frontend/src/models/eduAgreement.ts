@@ -1,4 +1,4 @@
-export interface TEduAgreement {
+export interface EduAgreement {
   number: number;
   scanUrl?: string;
   student?: string;

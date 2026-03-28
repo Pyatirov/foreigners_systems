@@ -1,4 +1,4 @@
-export interface TStudent {
+export interface Student {
   _id: string;           // вместо ObjectId
   photoUrl?: string;     // опциональное фото
   lastname: string;

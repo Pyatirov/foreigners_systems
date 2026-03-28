@@ -1,4 +1,4 @@
-export interface TArrivalNotice {
+export interface ArrivalNotice {
   scanUrl?: string;
   student?: string;
 }
