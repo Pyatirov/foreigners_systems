@@ -2,11 +2,46 @@ import { Request, Response } from "express";
 import { Student } from "@/modules/Student/student.model";
 import { getStudentsSortedByCreatedAt } from "@/services/item.service";
 
-// Получение всех студентов
 export const getStudents = async (req: Request, res: Response) => {
   try {
-    const students = await getStudentsSortedByCreatedAt();
-    res.json(students);
+    // Забираем из запроса параметры пагинации, поиска и фильтры через деструктуризацию
+    const { page = 1, limit = 10, search, ...filters } = req.query;
+
+    // Строим запрос к MongoDB
+    const query: Record<string, any> = {};
+
+    // Поиск по имени/фамилии
+    if (search) {
+      // Используем $or для поиска по нескольким полям
+      query.$or = [
+        // Проверяем вхождение строки поиска хоты бы в firstname, lastname или middlename (регистронезависимо), где
+        // $regex - для поиска по шаблону, $options: "i" - для игнорирования регистра
+        { firstname: { $regex: search, $options: "i" } },
+        { lastname: { $regex: search, $options: "i" } },
+        { middlename: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    // Остальные фильтры (country, sex и т.д.)
+    // Создаем из filters массив пар [ключ, значение] и проходим по ним циклом, 
+    // добавляя в запрос только те, у которых есть значение (не null и не пустая строка)
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value) query[key] = value;
+    });
+
+    // Парсим из строки числа для пагинации (из query они пришли строкой) и вычисляем skip
+    const pageNum  = Number(page);
+    const limitNum = Number(limit);
+    const skip     = (pageNum - 1) * limitNum;
+
+    // Выполняем запрос к базе: сначала получаем отфильтрованные и отсортированные данные с пагинацией,
+    // а параллельно считаем общее количество таких записей для фронта (для отображения общего количества страниц)
+    const [items, total] = await Promise.all([
+      Student.find(query).sort({ createdAt: -1 }).skip(skip).limit(limitNum),
+      Student.countDocuments(query),
+    ]);
+
+    res.json({ items, total });
   } catch (error) {
     res.status(500).json({ message: "Error fetching students", error });
   }
