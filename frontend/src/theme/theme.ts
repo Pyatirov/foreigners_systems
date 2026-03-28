@@ -26,6 +26,16 @@ const theme = createTheme({
         },
       },
     },
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+          "& input:-webkit-autofill": {
+            WebkitBoxShadow: "0 0 0 1000px #ffffff inset",
+            WebkitTextFillColor: "#000000",
+          },
+        },
+      },
+    },
   },
 });
 
