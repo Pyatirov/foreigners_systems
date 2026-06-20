@@ -1,6 +1,5 @@
-import { Request, Response } from "express";
-import { Petition } from "../Petition/petition.model";
-import { MedicalReport } from "@/modules/MedicalReports/medicalReport.model";
+import type { Request, Response } from "express";
+import { MedicalReport } from "@/modules/MedicalReports/medicalReport.model.js";
 
 export const getMedicalReport = async (req: Request, res: Response) => {
   try {

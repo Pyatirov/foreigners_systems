@@ -1,9 +1,8 @@
 import bcrypt from 'bcryptjs'
-import { IUser, User } from "../User/User"
-import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../Session/token.service'
-import { HydratedDocument, Types } from 'mongoose'
-import { Session } from '@/modules/Session/Session'
-import logger from '@/logger/logger'
+import { User } from "../User/User.js"
+import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../Session/token.service.js'
+import { Session } from '@/modules/Session/Session.js'
+import logger from '@/logger/logger.js'
 
 export async function loginUser (email: string, password: string, meta: { ip?: string, userAgent: string}) {
     logger.debug({email, ip: meta.ip, userAgent: meta.userAgent}, 'Login attempt')
@@ -73,7 +72,7 @@ export async function refreshSession(refreshToken: string, meta: { ip?: string, 
 
     if (!user) throw new Error("Unauthorized")
 
-    await Session.deleteOne()
+    await Session.deleteOne({ token: refreshToken })
     const newRefreshToken = generateRefreshToken({userId: user._id.toString()})
 
     await Session.create({

@@ -1,5 +1,5 @@
-import { Request, Response } from "express";
-import { ArrivalNotice } from "@/modules/ArrivalNotice/arrivalNotice.model";
+import type { Request, Response } from "express";
+import { ArrivalNotice } from "@/modules/ArrivalNotice/arrivalNotice.model.js";
 
 export const getArrivalNotices = async (req: Request, res: Response) => {
   try {

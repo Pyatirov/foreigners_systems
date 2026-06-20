@@ -1,24 +1,25 @@
 import dotenv from "dotenv"
-import { connectDB } from "@/connectDB"
+import { connectDB } from "@/connectDB.js"
 import express from "express"
 import cors from "cors"
 import cookieParser from "cookie-parser"
 import multer from "multer"
 import path from "path"
 import fs from "fs"
-import { router as studentRouter } from "@/modules/Student/student.routes"
-import { router as passportRouter } from "@/modules/Passport/passport.routes"
-import { router as visaRouter } from "@/modules/Visa/visa.routes"
-import { router as educationRouter } from "@/modules/Education/education.routes"
-import { router as petitionRouter } from "@/modules/Petition/petition.routes"
-import { router as medicalReportRouter } from "@/modules/MedicalReports/medicalReport.routes"
-import { router as migrationCardRouter } from "@/modules/MigrationCard/migrationCard.routes"
-import { router as arrivalNoticeRouter } from "@/modules/ArrivalNotice/arrivalNotice.routes"
-import { router as eduAgreementRouter } from "@/modules/EduAgreement/eduAgreement.routes"
-import { router as termNoticeRouter } from "@/modules/TermNotice/termNotice.routes"
-import { router as authRouter } from "@/modules/Auth/auth.routes"
-import { requestLogger } from "@/logger/requestLogger"
-import { errorHandler } from "@/logger/errorHandler"
+import { router as studentRouter } from "@/modules/Student/student.routes.js"
+import { router as passportRouter } from "@/modules/Passport/passport.routes.js"
+import { router as visaRouter } from "@/modules/Visa/visa.routes.js"
+import { router as educationRouter } from "@/modules/Education/education.routes.js"
+import { router as petitionRouter } from "@/modules/Petition/petition.routes.js"
+import { router as medicalReportRouter } from "@/modules/MedicalReports/medicalReport.routes.js"
+import { router as migrationCardRouter } from "@/modules/MigrationCard/migrationCard.routes.js"
+import { router as arrivalNoticeRouter } from "@/modules/ArrivalNotice/arrivalNotice.routes.js"
+import { router as eduAgreementRouter } from "@/modules/EduAgreement/eduAgreement.routes.js"
+import { router as termNoticeRouter } from "@/modules/TermNotice/termNotice.routes.js"
+import { router as authRouter } from "@/modules/Auth/auth.routes.js"
+import { requestLogger } from "@/logger/requestLogger.js"
+import { errorHandler } from "@/logger/errorHandler.js"
+import { userRouter } from "./modules/User/user.routes.js"
 
 dotenv.config()
 
@@ -57,12 +58,12 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
 });
 
-app.use(express.json());
-app.use(cookieParser())
 app.use(cors({
   origin: 'http://localhost:5173', // порт фронтенда
   credentials: true,               // <--- обязательно для cookie
 }));
+app.use(express.json());
+app.use(cookieParser())
 
 app.use(requestLogger)
 
@@ -79,6 +80,7 @@ app.use("/api/migration_cards", migrationCardRouter);
 app.use("/api/arrival_notifications", arrivalNoticeRouter);
 app.use("/api/education_agreements", eduAgreementRouter);
 app.use("/api/termination_notifications", termNoticeRouter);
+app.use("/api/users", userRouter);
 app.use("/auth", authRouter);
 
 // Multer error handling middleware

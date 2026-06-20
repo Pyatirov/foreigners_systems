@@ -1,5 +1,7 @@
-import { ObjectId, Schema, model } from "mongoose";
-import { IRefreshToken, RefreshTokenSchema } from "@/modules/Session/Token"
+import type { ObjectId } from "mongoose";
+import { Schema, model } from "mongoose";
+import type { IRefreshToken } from "@/modules/Session/Token.js"
+import { RefreshTokenSchema } from "@/modules/Session/Token.js"
 
 export interface IUser {
   _id: ObjectId,

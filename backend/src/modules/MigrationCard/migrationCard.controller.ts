@@ -1,5 +1,5 @@
-import { Request, Response } from "express";
-import { MigrationCard } from "@/modules/MigrationCard/migrationCard.model";
+import type { Request, Response } from "express";
+import { MigrationCard } from "@/modules/MigrationCard/migrationCard.model.js";
 
 export const getMigrationCards = async (req: Request, res: Response) => {
   try {

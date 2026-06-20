@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { getPassports, createPassport, updatePassport, deletePassport } from "@/modules/Passport/passport.controller"
+import { getPassports, createPassport, updatePassport, deletePassport } from "@/modules/Passport/passport.controller.js"
 
 export const router = Router();
 

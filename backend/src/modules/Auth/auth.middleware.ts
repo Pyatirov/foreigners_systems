@@ -1,16 +1,32 @@
-import { Request, Response, NextFunction } from 'express'
-import { verifyAccessToken } from '@/modules/Session/token.service'
+import type { Request, Response, NextFunction } from "express";
+import { verifyAccessToken } from "@/modules/Session/token.service.js";
 
-export function authMiddleware(req: Request, res: Response, next: NextFunction) {
-  const authHeader = req.headers.authorization
-  if (!authHeader) return res.status(401).json({ message: 'No token' })
-
-  const token = authHeader.split(' ')[1]
-  try {
-    const payload = verifyAccessToken(token)
-    req.user = payload
-    next()
-  } catch (err) {
-    return res.status(401).json({ message: 'Invalid token' })
+// Расширяем тип Request чтобы хранить payload
+declare global {
+  namespace Express {
+    interface Request {
+      user?: { userId: string; role: string; email: string };
+    }
   }
 }
+
+export const authenticate = (req: Request, res: Response, next: NextFunction) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith("Bearer ")) return res.sendStatus(401);
+
+  const token = authHeader.split(" ")[1];
+  try {
+    req.user = verifyAccessToken(token);
+    next();
+  } catch {
+    return res.sendStatus(401);
+  }
+};
+
+export const requireRole = (...roles: string[]) =>
+  (req: Request, res: Response, next: NextFunction) => {
+    if (!req.user || !roles.includes(req.user.role)) {
+      return res.sendStatus(403);
+    }
+    next();
+  };

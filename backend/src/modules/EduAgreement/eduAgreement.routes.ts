@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { createEduAgreement, deleteEduAgreement, getEduAgreements, updateEduAgreement } from "@/modules/EduAgreement/eduAgreement.controller"
+import { createEduAgreement, deleteEduAgreement, getEduAgreements, updateEduAgreement } from "@/modules/EduAgreement/eduAgreement.controller.js"
 
 export const router = Router();
 

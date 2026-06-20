@@ -1,6 +1,6 @@
-import { Request, Response } from "express";
-import { Student } from "@/modules/Student/student.model";
-import { getStudentsSortedByCreatedAt } from "@/services/item.service";
+import type { Request, Response } from "express";
+import { Student } from "@/modules/Student/student.model.js";
+import { getStudentsSortedByCreatedAt } from "@/services/item.service.js";
 
 export const getStudents = async (req: Request, res: Response) => {
   try {

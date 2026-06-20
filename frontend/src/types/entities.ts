@@ -3,10 +3,13 @@ export type Entity = Record<string, any>;
 export interface EntityConfig<T extends Entity> {
   title: string;
   endpoint: string;
-  columns: { field: keyof T; headerName: string }[];
+  columns: { field: keyof T & string; headerName: string }[];
   fields: EntityField<T>[];
   api: EntityApi<T>;
   filters?: EntityFilter<T>[];
+  displayFields: (keyof T & string)[];
+  /** Тип карточки при клике по строке; без значения карточка не открывается */
+  cardType?: "student" | "user";
 }
 
 export interface EntityApi<T extends Entity> {
@@ -18,7 +21,7 @@ export interface EntityApi<T extends Entity> {
 }
 
 export interface EntityField<T extends Entity = Entity> {
-  name: keyof T;
+  name: keyof T & string;
   label: string;
   type: "string" | "number" | "date" | "select" | "photo";
   required?: boolean;

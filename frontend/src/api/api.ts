@@ -2,7 +2,7 @@ import axios from 'axios';
 import { getAccessToken, setAccessToken, clearAccessToken } from '../store/auth.store';
 
 export const api = axios.create({
-  baseURL: 'http://localhost:3000',
+  baseURL: import.meta.env.VITE_API_URL ?? 'http://localhost:5000',
   withCredentials: true,
 });
 
@@ -15,21 +15,22 @@ api.interceptors.request.use(config => {
 });
 
 api.interceptors.response.use(
-  res => res,
-  async error => {
-    const original = error.config;
+  (res) => res,
+  async (error) => {
+    const isRefreshRequest = error.config?.url?.includes("/auth/refresh");
 
-    if (error.response?.status === 401 && !original._retry) {
-      original._retry = true;
-
+    if (error.response?.status === 401 && !error.config._retry && !isRefreshRequest) {
+      error.config._retry = true;
       try {
-        const res = await api.post('/auth/refresh');
-        setAccessToken(res.data.accessToken);
-
-        original.headers.Authorization = `Bearer ${res.data.accessToken}`;
-        return api(original);
+        const { data } = await api.post("/auth/refresh");
+        setAccessToken(data.accessToken);
+        error.config.headers.Authorization = `Bearer ${data.accessToken}`;
+        return api(error.config);
       } catch {
         clearAccessToken();
+        if (window.location.pathname !== "/auth") {
+          window.location.href = "/auth";
+        }
       }
     }
 

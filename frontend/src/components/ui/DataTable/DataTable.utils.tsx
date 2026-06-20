@@ -1,12 +1,29 @@
-import { CountryCell } from "../CountryCell";
+import { CountryCell } from "../CountryCell/CountryCell";
 import { Box, Typography } from "@mui/material";
+import dayjs from "dayjs";
+import { formatUserRole } from "../../../constants/roles";
 
-export const formatDate = (date: any): string => {
+/** DD.MM.YYYY — календарные даты (рождение, выдача визы и т.п.) */
+export const formatDate = (date: unknown): string => {
   if (!date) return "-";
-  const d = new Date(date);
-  if (isNaN(d.getTime())) return "-";
-  return d.toLocaleDateString("ru-RU");
+  const d = dayjs(date);
+  if (!d.isValid()) return "-";
+  return d.format("DD.MM.YYYY");
 };
+
+/** DD.MM.YYYY HH:mm:ss — дата регистрации, сроки действия и т.п. */
+export const formatDateTime = (date: unknown): string => {
+  if (!date) return "-";
+  const d = dayjs(date);
+  if (!d.isValid()) return "-";
+  return d.format("DD.MM.YYYY HH:mm:ss");
+};
+
+const isDateTimeField = (field: string) =>
+  field.endsWith("At") ||
+  field.endsWith("_at") ||
+  field === "valid_from" ||
+  field === "valid_to";
 
 export const calculateAge = (birthDate: any): number | null => {
   if (!birthDate) return null;
@@ -68,8 +85,10 @@ export const renderCell = (field: string, value: any): React.ReactNode => {
   }
 
   if (field === "country") return <CountryCell value={value} />;
+  if (field === "role") return formatUserRole(value);
   if (field === "sex") return value ? "М" : "Ж";
-  if (field.includes("date") || field.includes("_at")) return formatDate(value);
+  if (isDateTimeField(field)) return formatDateTime(value);
+  if (field.includes("date")) return formatDate(value);
 
   return value ?? "-";
 };

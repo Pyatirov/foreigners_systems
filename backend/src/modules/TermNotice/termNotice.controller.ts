@@ -1,5 +1,5 @@
-import { Request, Response } from "express";
-import { TermNotice } from "@/modules/TermNotice/termNotice.model";
+import type { Request, Response } from "express";
+import { TermNotice } from "@/modules/TermNotice/termNotice.model.js";
 
 export const getTermNotices = async (req: Request, res: Response) => {
   try {

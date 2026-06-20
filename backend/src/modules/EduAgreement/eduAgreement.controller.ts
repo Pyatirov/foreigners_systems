@@ -1,5 +1,5 @@
-import { Request, Response } from "express";
-import { EduAgreement } from "@/modules/EduAgreement/eduAgreement.model";
+import type { Request, Response } from "express";
+import { EduAgreement } from "@/modules/EduAgreement/eduAgreement.model.js";
 
 export const getEduAgreements = async (req: Request, res: Response) => {
   try {

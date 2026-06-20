@@ -11,20 +11,26 @@ const Header = () => {
   const location = useLocation();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const isDocumentsMenuOpen = Boolean(anchorEl);
-  const { user, logout, isAuth } = useAuth();
+  const { user, logout, isAuth, role } = useAuth();
+  const isAdmin = role === "admin";
 
-  const currentTab = {
-    "/students": 0,
-    "/passports": 1,
-    "/visas": 1,
-    "/education_documents": 1,
-    "/petitions": 1,
-    "/medical_reports": 1,
-    "/migration_cards": 1,
-    "/arrivals": 1,
-    "/education_agreement": 1,
-    "/termination_notices": 1,
-  }[location.pathname] ?? 0;
+  const documentPaths = [
+    "/passports",
+    "/visas",
+    "/education_documents",
+    "/petitions",
+    "/medical_reports",
+    "/migration_cards",
+    "/arrival_notifications",
+    "/education_agreements",
+    "/termination_notifications",
+  ];
+
+  const currentTab = isAdmin
+    ? 0
+    : documentPaths.includes(location.pathname)
+      ? 1
+      : 0;
 
   const handleDocumentsHover = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -104,8 +110,12 @@ const Header = () => {
         </Box>
       </Box>
 
-      <AppBar position="static" sx={{ bgcolor: "#1D1D1D", boxShadow: 3 }} >
-        <Tabs value={currentTab} centered
+      <AppBar position="static" sx={{ bgcolor: "#1D1D1D", color: "#fff", boxShadow: 3 }}>
+        <Tabs
+          value={currentTab}
+          centered
+          textColor="inherit"
+          TabIndicatorProps={{ sx: { backgroundColor: "#b7a284", height: 4 } }}
           sx={{
             "& .MuiTab-root": {
               fontWeight: "bold",
@@ -114,31 +124,36 @@ const Header = () => {
               color: "#fff",
               transition: "0.3s",
             },
-
             "& .MuiTab-root:hover:not(.Mui-selected)": {
               color: "#b7a284",
             },
-
             "& .Mui-selected": {
               color: "#b7a284 !important",
             },
-
-            "& .MuiTabs-indicator": {
-              backgroundColor: "#b7a284",
-              height: 4,
-            },
           }}
         >
-          <Tab label="Студенты" component={Link} to="/students" disableRipple />
-          <Tab 
-            label="Документы" 
-            disableRipple
-            onMouseEnter={handleDocumentsHover}
-            sx={{ cursor: "pointer" }}
-          />
+          {isAdmin && (
+            <Tab
+              label="Администрирование"
+              component={Link}
+              to="/admin/users"
+              disableRipple
+            />
+          )}
+          {!isAdmin && (
+            <Tab label="Студенты" component={Link} to="/students" disableRipple />
+          )}
+          {!isAdmin && (
+            <Tab
+              label="Документы"
+              disableRipple
+              onMouseEnter={handleDocumentsHover}
+              sx={{ cursor: "pointer" }}
+            />
+          )}
         </Tabs>
 
-        {/* Documents Dropdown Menu */}
+        {!isAdmin && (
         <Menu
           anchorEl={anchorEl}
           open={isDocumentsMenuOpen}
@@ -242,6 +257,7 @@ const Header = () => {
           </MenuItem>
 
         </Menu>
+        )}
       </AppBar>
     </>
   );

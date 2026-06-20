@@ -2,7 +2,7 @@ import { Box, Paper, Typography, TextField, Button, Tabs, Tab, Select, MenuItem,
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginRequest, registerRequest } from "../api/auth.api";
-import { useAuth } from "../context/AuthContext";
+import { parseJwt, useAuth } from "../context/AuthContext";
 import { Visibility, VisibilityOff, Clear } from "@mui/icons-material";
 import { ErrorBox } from "../components/ui/ErrorBox";
 
@@ -38,7 +38,8 @@ export const AuthPage = () => {
 
       const accessToken = await loginRequest({ email, password });
       login(accessToken);
-      navigate("/", { replace: true });
+      const payload = parseJwt(accessToken);
+      navigate(payload?.role === "admin" ? "/admin" : "/", { replace: true });
     } catch (err: any) {
       setError("Неверный логин или пароль");
     }
@@ -58,7 +59,8 @@ export const AuthPage = () => {
       await registerRequest({ email, password, role });
       const accessToken = await loginRequest({ email, password });
       login(accessToken);
-      navigate("/", { replace: true });
+      const payload = parseJwt(accessToken);
+      navigate(payload?.role === "admin" ? "/admin" : "/", { replace: true });
     } catch (err: any) {
       setError("Ошибка регистрации или пользователь уже существует");
     }

@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { getMedicalReport, createMedicalReport, updateMedicalReport, deleteMedicalReport } from "@/modules/MedicalReports/medicalReports.controller"
+import { getMedicalReport, createMedicalReport, updateMedicalReport, deleteMedicalReport } from "@/modules/MedicalReports/medicalReports.controller.js"
 
 export const router = Router();
 

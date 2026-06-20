@@ -10,7 +10,7 @@ export interface IPassport extends Document {
   student?: Types.ObjectId
 }
 
-const StudentSchema = new Schema<IPassport>({
+const PassportSchema = new Schema<IPassport>({
   type: { type: String, required: true },
   series: { type: Number },
   number: { type: Number, required: true },
@@ -24,4 +24,4 @@ const StudentSchema = new Schema<IPassport>({
   }
 }, {timestamps: true});
 
-export const Passport = mongoose.model<IPassport>("passports", StudentSchema);
+export const Passport = mongoose.model<IPassport>("passports", PassportSchema);

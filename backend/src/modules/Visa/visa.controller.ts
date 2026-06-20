@@ -1,5 +1,5 @@
-import { Request, Response } from "express";
-import { Visa } from "@/modules/Visa/visa.model";
+import type { Request, Response } from "express";
+import { Visa } from "@/modules/Visa/visa.model.js";
 
 // Получение всех виз
 export const getVisas = async (req: Request, res: Response) => {

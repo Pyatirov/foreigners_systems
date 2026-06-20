@@ -1,25 +1,12 @@
-import { Request, Response } from "express";
-import { Passport } from "./passport.model";
+import type { Request, Response } from "express";
+import { Passport } from "./passport.model.js";
 
 export const getPassports = async (req: Request, res: Response) => {
-  try {
-    console.log("QUERY student:", req.query.student);
-
-    const filter: any = {};
-    if (req.query.student) filter.student = req.query.student;
-
-    console.log("Mongo filter:", filter);
-
-    const passports = await Passport.find(filter);
-    console.log("FOUND passports:", passports.length);
-
-    res.json(passports);
-  } catch (err) {
-    res.status(500).json({ message: "Error fetching passports", error: err });
-  }
+  const { student } = req.query;
+  const query = student ? { student } : {};
+  const passports = await Passport.find(query);
+  res.json(passports);
 };
-
-
 
 // Создание паспорта
 export const createPassport = async (req: Request, res: Response) => {

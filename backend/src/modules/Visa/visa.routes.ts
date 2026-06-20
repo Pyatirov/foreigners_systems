@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { getVisas, createVisa, updateVisa, deleteVisa } from "@/modules/Visa/visa.controller"
+import { getVisas, createVisa, updateVisa, deleteVisa } from "@/modules/Visa/visa.controller.js"
 
 export const router = Router();
 

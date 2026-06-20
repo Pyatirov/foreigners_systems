@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { getEducation, createEducation, updateEducation, deleteEducation } from "@/modules/Education/education.controller"
+import { getEducation, createEducation, updateEducation, deleteEducation } from "@/modules/Education/education.controller.js"
 
 export const router = Router();
 

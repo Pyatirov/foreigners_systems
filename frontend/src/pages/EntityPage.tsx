@@ -1,15 +1,16 @@
 import { useState, useEffect, useCallback } from "react";
 import { useDebounce } from "use-debounce";
-import { SearchBar } from "../components/ui/SearchBar";
+import { SearchBar } from "../components/ui/SearchBar/SearchBar";
 import { FilterList } from "@mui/icons-material";
 import { DataTable } from "../components/ui/DataTable/DataTable";
-import { EntityForm } from "../components/ui/EntityForm";
-import { DeleteConfirmDialog } from "../components/ui/DeleteConfirmDialog";
+import { EntityForm } from "../components/ui/EntityForm/EntityForm";
+import { DeleteConfirmDialog } from "../components/ui/DeleteConfirmDialog/DeleteConfirmDialog";
 import { FiltersForm } from "../components/ui/FiltersForm";
 import type { Entity, EntityApi, EntityConfig } from "../types/entities";
 import { Box, Button, IconButton, Typography, Tooltip, CircularProgress } from "@mui/material";
 import { Add, Delete, Cancel } from "@mui/icons-material";
-import { StudentCard } from "../components/ui/StudentCard";
+import { StudentCard } from "../components/ui/StudentCard/StudentCard";
+import { UserCard } from "../components/ui/UserCard/UserCard";
 import { buildFormData } from "../api/buildFormData";
 import { DEBOUNCE_MS, ROWS_PER_PAGE } from "../constants/index";
 import { ErrorBox } from "../components/ui/ErrorBox";
@@ -35,7 +36,8 @@ export const EntityPage = <T extends Entity>({ config }: { config: EntityConfig<
   // Состояния для мультивыбора
   const [multiSelectMode, setMultiSelectMode]                 = useState(false);
   const [selectedRows, setSelectedRows]                       = useState<any[]>([]);
-  const [selectedStudent, setSelectedStudent]                 = useState<string | null>(null);
+  const [selectedRowId, setSelectedRowId]                       = useState<string | null>(null);
+  const [multiDeleteDisplayText, setMultiDeleteDisplayText]   = useState("");
 
   const [cardOpen, setCardOpen]                               = useState(false);
   const [photoFile, setPhotoFile]                             = useState<File | null>(null);
@@ -123,9 +125,19 @@ export const EntityPage = <T extends Entity>({ config }: { config: EntityConfig<
     }
   };
 
-
   const handlePageChange = (_event: unknown, newPage: number) => {
     setPage(newPage);
+  };
+
+  const handleMultiDelete = async () => {
+    try {
+      await Promise.all(selectedRows.map(id => config.api.delete(id)));
+      setMultiDeleteDialogOpen(false);
+      cancelMultiSelect();
+      loadData();
+    } catch {
+      setError("Ошибка удаления");
+    }
   };
 
   const activeFiltersCount = Object.values(filtersApplied).filter(v => v !== undefined && v !== null && v !== "").length;
@@ -152,6 +164,12 @@ export const EntityPage = <T extends Entity>({ config }: { config: EntityConfig<
   };
 
   const confirmMultiDelete = () => {
+    // Считаем текст пока selectedRows ещё не сброшен
+    const text = data
+      .filter(row => selectedRows.includes(row._id))
+      .map(row => config.displayFields.map((f) => row[f]).filter(Boolean).join(" "))
+      .join("\n");
+    setMultiDeleteDisplayText(text);
     setMultiDeleteDialogOpen(true);
   };
 
@@ -308,7 +326,7 @@ export const EntityPage = <T extends Entity>({ config }: { config: EntityConfig<
             variant="contained"
             color="error"
             startIcon={<Delete />}
-            onClick={() => setMultiDeleteDialogOpen(true)}
+            onClick={confirmMultiDelete}
             disabled={selectedRows.length === 0}
           >
             Удалить
@@ -325,10 +343,10 @@ export const EntityPage = <T extends Entity>({ config }: { config: EntityConfig<
           onDelete={handleDelete}
           page={page}
           onPageChange={handlePageChange}
-          onRowClick={(row) => {
-            setSelectedStudent(row._id);
+          onRowClick={config.cardType ? (row) => {
+            setSelectedRowId(String(row._id ?? row.id));
             setCardOpen(true);
-          }}
+          } : undefined}
           rowsPerPage={ROWS_PER_PAGE}
           totalRows={total}
           multiSelectMode={multiSelectMode}
@@ -341,16 +359,26 @@ export const EntityPage = <T extends Entity>({ config }: { config: EntityConfig<
         
       )}
 
-      <StudentCard
-        open={cardOpen}
-        onClose={() => setCardOpen(false)}
-        studentId={selectedStudent!}
-      />
+      {config.cardType === "student" && (
+        <StudentCard
+          open={cardOpen}
+          onClose={() => setCardOpen(false)}
+          studentId={selectedRowId!}
+        />
+      )}
+      {config.cardType === "user" && (
+        <UserCard
+          open={cardOpen}
+          onClose={() => setCardOpen(false)}
+          userId={selectedRowId!}
+          onUpdated={loadData}
+        />
+      )}
 
       <EntityForm
         open={formOpen}
         onClose={handleFormClose}
-        api={config.api}
+        //api={config.api}
         onSubmit={(formData, photo) => handleFormSubmit(formData, config.api, photo)}
         config={config}
         photoFile={photoFile}
@@ -369,14 +397,11 @@ export const EntityPage = <T extends Entity>({ config }: { config: EntityConfig<
       <DeleteConfirmDialog
         open={multiDeleteDialogOpen}
         onClose={() => setMultiDeleteDialogOpen(false)}
-        onConfirm={() => {
-          // тут можно вызывать API удаления выбранных элементов
-          setMultiDeleteDialogOpen(false);
-          cancelMultiSelect();
-          loadData();
-        }}
-        item={{ _id: selectedRows.join(","), name: `${selectedRows.length} объектов` }}
+        onConfirm={handleMultiDelete}
+        item={{ _id: "multi" }}
         config={config}
+        displayText={multiDeleteDisplayText}
+        count={selectedRows.length}
       />
     </Box>
   );

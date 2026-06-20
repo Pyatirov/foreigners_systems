@@ -1,5 +1,5 @@
-import { Request, Response } from "express";
-import { Education } from "@/modules/Education/education.model";
+import type { Request, Response } from "express";
+import { Education } from "@/modules/Education/education.model.js";
 
 // Получение всех документов об образовании
 export const getEducation = async (req: Request, res: Response) => {

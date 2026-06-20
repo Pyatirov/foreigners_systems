@@ -1,5 +1,6 @@
 // models/Session.ts
-import mongoose, { Schema, Document, Types, InferSchemaType } from 'mongoose'
+import mongoose, { Schema, Document, Types } from 'mongoose'
+import type {InferSchemaType} from "mongoose"
 
 const SessionSchema = new Schema({
   userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },

@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { createArrivalNotice, deleteArrivalNotice, getArrivalNotices, updateArrivalNotice } from "../ArrivalNotice/arrivalNotice.controller"
+import { createArrivalNotice, deleteArrivalNotice, getArrivalNotices, updateArrivalNotice } from "../ArrivalNotice/arrivalNotice.controller.js"
 
 export const router = Router();
 

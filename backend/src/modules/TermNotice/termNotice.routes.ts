@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { createTermNotice, deleteTermNotice, updateTermNotice, getTermNotices } from "@/modules/TermNotice/termNotice.controller"
+import { createTermNotice, deleteTermNotice, updateTermNotice, getTermNotices } from "@/modules/TermNotice/termNotice.controller.js"
 
 export const router = Router();
 

@@ -1,5 +1,5 @@
-import { Request, Response } from "express";
-import { Petition } from "@/modules/Petition/petition.model";
+import type { Request, Response } from "express";
+import { Petition } from "@/modules/Petition/petition.model.js";
 
 export const getPetitions = async (req: Request, res: Response) => {
   try {

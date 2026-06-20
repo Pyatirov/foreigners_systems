@@ -13,6 +13,8 @@ import { migrationCardApi } from "../api/migrationCard.api";
 import { arrivalNoticeApi } from "../api/arrivalNotice.api";
 import { eduAgreementApi } from "../api/eduAgreement.api";
 import { termNoticeApi } from "../api/termNotice.api";
+import { AdminRoute } from "../router/AdminRouter";
+import { userApi } from "../api/user.api";
 
 const api = import.meta.env.VITE_API_URL;
 
@@ -64,6 +66,8 @@ const AppRouter = () => (
                       update: studentApi.update,
                       delete: studentApi.delete,
                     },
+                    displayFields: ["lastname", "firstname", "middlename"],
+                    cardType: "student",
                   }} 
                 />} 
             />
@@ -94,6 +98,7 @@ const AppRouter = () => (
                       update: passportApi.update,
                       delete: passportApi.delete,
                     },
+                    displayFields: ["type", "series", "number"]
                   }} 
                 />} 
             />
@@ -124,6 +129,7 @@ const AppRouter = () => (
                       update: visaApi.update,
                       delete: visaApi.delete,
                     },
+                    displayFields: ["country", "type", "number"]
                   }} 
                 />} 
             />
@@ -152,6 +158,7 @@ const AppRouter = () => (
                       update: educationApi.update,
                       delete: educationApi.delete,
                     },
+                    displayFields: ["institution", "degree", "field_of_study"]
                   }} 
                 />} 
             />
@@ -181,7 +188,8 @@ const AppRouter = () => (
                       create: petitionApi.create,
                       update: petitionApi.update,
                       delete: petitionApi.delete,
-                    },  
+                    },
+                    displayFields: ["district", "object"]
                   }} 
                 />} 
             />
@@ -207,7 +215,8 @@ const AppRouter = () => (
                       create: medicalReportApi.create,
                       update: medicalReportApi.update,
                       delete: medicalReportApi.delete,
-                    },  
+                    }, 
+                    displayFields: ["organization", "series", "number"] 
                   }} 
                 />} 
             />
@@ -235,7 +244,8 @@ const AppRouter = () => (
                       create: migrationCardApi.create,
                       update: migrationCardApi.update,
                       delete: migrationCardApi.delete,
-                    },  
+                    }, 
+                    displayFields: ["series", "number"] 
                   }} 
                 />} 
             />
@@ -258,6 +268,7 @@ const AppRouter = () => (
                       update: arrivalNoticeApi.update,
                       delete: arrivalNoticeApi.delete,
                     },  
+                    displayFields: ["student"]
                   }} 
                 />} 
             />
@@ -280,6 +291,7 @@ const AppRouter = () => (
                       update: eduAgreementApi.update,
                       delete: eduAgreementApi.delete,
                     }, 
+                    displayFields: ["number"]
                   }} 
                 />} 
             />
@@ -310,10 +322,50 @@ const AppRouter = () => (
                       update: termNoticeApi.update,
                       delete: termNoticeApi.delete,
                     }, 
+                    displayFields: ["district", "object"]
                   }} 
                 />} 
             />
           <Route index element={<Navigate to="students" />} />
+        </Route>
+      </Route>
+      <Route element={<AdminRoute />}>
+        <Route path="/admin" element={<MainLayout />}>
+          <Route
+            path="users"
+            element={
+              <EntityPage
+                config={{
+                  title: "Пользователи",
+                  endpoint: `${api}/api/users`,
+                  columns: [
+                    { field: "email",     headerName: "Email" },
+                    { field: "role",      headerName: "Роль" },
+                    { field: "createdAt", headerName: "Дата регистрации" },
+                  ],
+                  fields: [
+                    { name: "email", label: "Email",  type: "string", required: true },
+                    { name: "role",  label: "Роль",   type: "select", required: true,
+                      options: [
+                        { value: "user",  label: "Специалист" },
+                        { value: "admin", label: "Администратор" },
+                      ]
+                    },
+                  ],
+                  api: {
+                    getAll:  userApi.getAll,
+                    getById: userApi.getById,
+                    create:  userApi.create,
+                    update:  userApi.update,
+                    delete:  userApi.delete,
+                  },
+                  displayFields: ["email", "role"],
+                  cardType: "user",
+                }}
+              />
+            }
+          />
+          <Route index element={<Navigate to="users" />} />
         </Route>
       </Route>
     </Routes>

@@ -1,5 +1,5 @@
-import { Request, Response } from "express";
-import { loginUser, logoutUser, refreshSession, registerUser } from "@/modules/Auth/auth.service";
+import type { Request, Response } from "express";
+import { loginUser, logoutUser, refreshSession, registerUser } from "@/modules/Auth/auth.service.js";
 
 export async function login(req: Request, res: Response) {
   const { email, password } = req.body;
@@ -10,7 +10,8 @@ export async function login(req: Request, res: Response) {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: "lax",
-    path: "/auth"
+    path: "/auth",
+    maxAge: 14 * 24 * 60 * 60 * 1000 
   })
 
   res.json({accessToken})
@@ -36,7 +37,8 @@ export async function refresh(req: Request, res: Response) {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: "lax",
-    path: "/auth"
+    path: "/auth",
+    maxAge: 14 * 24 * 60 * 60 * 1000
   })
 
   res.json({ accessToken: tokens.accessToken })
