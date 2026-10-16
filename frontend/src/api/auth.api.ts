@@ -43,7 +43,7 @@ export const loginRequest = async (data: { email: string; password: string }) =>
   return res.data.accessToken;
 };
 
-export const registerRequest = async (data: { email: string; password: string; role: string }) => {
+export const registerRequest = async (data: { email: string; password: string}) => {
   const res = await api.post("/auth/register", data);
   return res.data;
 };
