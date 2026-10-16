@@ -1,32 +1,61 @@
-import type { Request, Response, NextFunction } from "express";
-import { verifyAccessToken } from "@/modules/Session/token.service.js";
+import type {
+  Request,
+  Response,
+  NextFunction,
+} from "express";
 
-// Расширяем тип Request чтобы хранить payload
+import {
+  verifyAccessToken,
+  type AppRole,
+  type AccessTokenPayload,
+} from "@/modules/Session/token.service.js";
+
 declare global {
   namespace Express {
     interface Request {
-      user?: { userId: string; role: string; email: string };
+      user?: AccessTokenPayload;
     }
   }
 }
 
-export const authenticate = (req: Request, res: Response, next: NextFunction) => {
+export function authenticate(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void {
   const authHeader = req.headers.authorization;
-  if (!authHeader?.startsWith("Bearer ")) return res.sendStatus(401);
 
-  const token = authHeader.split(" ")[1];
+  if (!authHeader?.startsWith("Bearer ")) {
+    res.sendStatus(401);
+    return;
+  }
+
+  const token = authHeader.slice("Bearer ".length).trim();
+
+  if (!token) {
+    res.sendStatus(401);
+    return;
+  }
+
   try {
     req.user = verifyAccessToken(token);
     next();
   } catch {
-    return res.sendStatus(401);
+    res.sendStatus(401);
   }
-};
+}
 
-export const requireRole = (...roles: string[]) =>
-  (req: Request, res: Response, next: NextFunction) => {
+export function requireRole(...roles: AppRole[]) {
+  return (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): void => {
     if (!req.user || !roles.includes(req.user.role)) {
-      return res.sendStatus(403);
+      res.sendStatus(403);
+      return;
     }
+
     next();
   };
+}
