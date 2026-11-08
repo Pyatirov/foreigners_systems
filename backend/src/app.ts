@@ -17,6 +17,10 @@ import { router as arrivalNoticeRouter } from "@/modules/ArrivalNotice/arrivalNo
 import { router as eduAgreementRouter } from "@/modules/EduAgreement/eduAgreement.routes.js"
 import { router as termNoticeRouter } from "@/modules/TermNotice/termNotice.routes.js"
 import { router as authRouter } from "@/modules/Auth/auth.routes.js"
+import { authenticate, requireAdminForDelete } from "@/modules/Auth/auth.middleware.js"
+import { router as documentTypeRouter } from "@/modules/DocumentType/documentType.routes.js"
+import { router as documentRouter } from "@/modules/Document/document.routes.js"
+import { blockLegacyDocumentHardDelete } from "@/modules/Document/legacyDocumentDeleteGuard.middleware.js"
 import { requestLogger } from "@/logger/requestLogger.js"
 import { errorHandler } from "@/logger/errorHandler.js"
 import { userRouter } from "./modules/User/user.routes.js"
@@ -70,6 +74,9 @@ app.use(requestLogger)
 // Serve static files from uploads directory
 app.use('/uploads', express.static('uploads'));
 
+app.use("/api", authenticate); // Apply authentication middleware to all routes under /api/authenticate
+app.use("/api", blockLegacyDocumentHardDelete); // Apply legacy document delete guard middleware to all routes under /api/blockLegacyDocumentHardDelete
+app.use("/api", requireAdminForDelete); // Apply admin-only delete guard middleware to all routes under /api/requireAdminForDelete
 app.use("/api/students", upload.single('photo'), studentRouter);
 app.use("/api/passports", passportRouter);
 app.use("/api/visas", visaRouter);
@@ -82,6 +89,8 @@ app.use("/api/education_agreements", eduAgreementRouter);
 app.use("/api/termination_notifications", termNoticeRouter);
 app.use("/api/users", userRouter);
 app.use("/auth", authRouter);
+app.use("/api/document-types", documentTypeRouter);
+app.use("/api/documents", documentRouter);
 
 // Multer error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
