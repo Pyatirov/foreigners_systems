@@ -1,18 +1,19 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import MainLayout from "../components/layout/MainLayout";
+import MainLayout from "../components/layouts/MainLayout";
 import { EntityPage } from "../pages/EntityPage";
 import { AuthPage } from "../pages/AuthPage";
+import { DocumentsPage } from "../pages/DocumentsPage";
 import { PrivateRoute } from "./SecuteRoute";
 import { studentApi } from "../api/student.api";
-import { passportApi } from "../api/passport.api";
-import { visaApi } from "../api/visa.api";
-import { educationApi } from "../api/education.api";
-import { petitionApi } from "../api/petition.api";
-import { medicalReportApi } from "../api/medicalReport.api";
-import { migrationCardApi } from "../api/migrationCard.api";
-import { arrivalNoticeApi } from "../api/arrivalNotice.api";
-import { eduAgreementApi } from "../api/eduAgreement.api";
-import { termNoticeApi } from "../api/termNotice.api";
+// import { passportApi } from "../api/passport.api";
+// import { visaApi } from "../api/visa.api";
+// import { educationApi } from "../api/education.api";
+// import { petitionApi } from "../api/petition.api";
+// import { medicalReportApi } from "../api/medicalReport.api";
+// import { migrationCardApi } from "../api/migrationCard.api";
+// import { arrivalNoticeApi } from "../api/arrivalNotice.api";
+// import { eduAgreementApi } from "../api/eduAgreement.api";
+// import { termNoticeApi } from "../api/termNotice.api";
 import { AdminRoute } from "../router/AdminRouter";
 import { userApi } from "../api/user.api";
 
@@ -71,260 +72,49 @@ const AppRouter = () => (
                   }} 
                 />} 
             />
-            <Route path="passports" 
-              element={
-                <EntityPage 
-                  config={{
-                    title: "Passports",
-                    endpoint: `${api}/api/passports`,
-                    columns: [
-                      { field: "type", headerName: "Документ, удостоверяющий личность" },
-                      { field: "series", headerName: "Серия" },
-                      { field: "number", headerName: "Номер №" },
-                      { field: "valid_from", headerName: "Срок начала действия" },
-                      { field: "valid_to", headerName: "Срок окончания действия" }
-                    ],
-                    fields: [
-                      { name: "type", label: "Документ, удостоверяющий личность", type: "string", required: true },
-                      { name: "series", label: "Серия", type: "number" },
-                      { name: "number", label: "Номер №", type: "number", required: true },
-                      { name: "valid_from", label: "Срок начала действия", type: "date" },
-                      { name: "valid_to", label: "Срок окончания действия", type: "date" }
-                    ],
-                    api: {
-                      getAll: passportApi.getAll,
-                      getById: passportApi.getById,
-                      create: passportApi.create,
-                      update: passportApi.update,
-                      delete: passportApi.delete,
-                    },
-                    displayFields: ["type", "series", "number"]
-                  }} 
-                />} 
+            <Route
+              path="passports"
+              element={<DocumentsPage typeCode="passport" />}
             />
-            <Route path="visas" 
-              element={
-                <EntityPage 
-                  config={{
-                    title: "Visas",
-                    endpoint: `${api}/api/visas`,
-                    columns: [
-                      { field: "country", headerName: "Страна" },
-                      { field: "type", headerName: "Тип визы" },
-                      { field: "number", headerName: "Номер визы" },
-                      { field: "issued_date", headerName: "Дата выдачи" },
-                      { field: "expiry_date", headerName: "Дата истечения" }
-                    ],
-                    fields: [
-                      { name: "country", label: "Страна", type: "string", required: true },
-                      { name: "type", label: "Тип визы", type: "string", required: true },
-                      { name: "number", label: "Номер визы", type: "string", required: true },
-                      { name: "issued_date", label: "Дата выдачи", type: "date" },
-                      { name: "expiry_date", label: "Дата истечения", type: "date" }
-                    ],
-                    api: {
-                      getAll: visaApi.getAll,
-                      getById: visaApi.getById,
-                      create: visaApi.create,
-                      update: visaApi.update,
-                      delete: visaApi.delete,
-                    },
-                    displayFields: ["country", "type", "number"]
-                  }} 
-                />} 
+
+            <Route
+              path="visas"
+              element={<DocumentsPage typeCode="visa" />}
             />
-            <Route path="education_documents" 
-              element={
-                <EntityPage 
-                  config={{
-                    title: "Education Documents",
-                    endpoint: `${api}/api/education_documents`,
-                    columns: [
-                      { field: "institution", headerName: "Учебное заведение" },
-                      { field: "degree", headerName: "Степень" },
-                      { field: "field_of_study", headerName: "Направление обучения" },
-                      { field: "graduation_date", headerName: "Дата окончания" }
-                    ],
-                    fields: [
-                      { name: "institution", label: "Учебное заведение", type: "string", required: true },
-                      { name: "degree", label: "Степень", type: "string", required: true },
-                      { name: "field_of_study", label: "Направление обучения", type: "string" },
-                      { name: "graduation_date", label: "Дата окончания", type: "date", required: true }
-                    ],
-                    api: {
-                      getAll: educationApi.getAll,
-                      getById: educationApi.getById,
-                      create: educationApi.create,
-                      update: educationApi.update,
-                      delete: educationApi.delete,
-                    },
-                    displayFields: ["institution", "degree", "field_of_study"]
-                  }} 
-                />} 
+
+            <Route
+              path="education_documents"
+              element={<DocumentsPage typeCode="education_document" />}
             />
-            <Route path="/petitions" 
-              element={
-                <EntityPage 
-                  config={{
-                    title: "Ходатайства",
-                    endpoint: `${api}/api/petitions`,
-                    columns: [
-                      { field: "district", headerName: "Район УМВД" },
-                      { field: "object", headerName: "Цель подачи" },
-                      { field: "reason", headerName: "В связи с" }
-                    ],
-                    fields: [
-                      { name: "district", label: "Район УМВД", type: "select", options:[
-                          {value: "Адмиралтейскому", label: "Адмиралтейский"},
-                          {value: "Выборгскому", label: "Выборгский"},
-                        ]
-                      },
-                      { name: "object", label: "Цель подачи", type: "string", required: true },
-                      { name: "reason", label: "В связи с", type: "string", required: true }
-                    ],
-                    api: {
-                      getAll: petitionApi.getAll,
-                      getById: petitionApi.getById,
-                      create: petitionApi.create,
-                      update: petitionApi.update,
-                      delete: petitionApi.delete,
-                    },
-                    displayFields: ["district", "object"]
-                  }} 
-                />} 
+
+            <Route
+              path="petitions"
+              element={<DocumentsPage typeCode="petition" />}
             />
-            <Route path="/medical_reports" 
-              element={
-                <EntityPage 
-                  config={{
-                    title: "Медицинские заключения",
-                    endpoint: `${api}/api/medical_reports`,
-                    columns: [
-                      { field: "organization", headerName: "Организация" },
-                      { field: "series", headerName: "Серия" },
-                      { field: "number", headerName: "Номер" }
-                    ],
-                    fields: [
-                      { name: "organization", label: "Организация", type: "string"},
-                      { name: "series", label: "Серия", type: "number", required: true },
-                      { name: "number", label: "Номер", type: "number", required: true }
-                    ],
-                    api: {
-                      getAll: medicalReportApi.getAll,
-                      getById: medicalReportApi.getById,
-                      create: medicalReportApi.create,
-                      update: medicalReportApi.update,
-                      delete: medicalReportApi.delete,
-                    }, 
-                    displayFields: ["organization", "series", "number"] 
-                  }} 
-                />} 
+            
+            <Route
+              path="medical_reports"
+              element={<DocumentsPage typeCode="medical_report" />}
             />
-            <Route path="/migration_cards" 
-              element={
-                <EntityPage 
-                  config={{
-                    title: "Миграционные карты",
-                    endpoint: `${api}/api/migration_cards`,
-                    columns: [
-                      { field: "series", headerName: "Серия" },
-                      { field: "number", headerName: "Номер" },
-                      { field: "start_date", headerName: "Начало срока пребывания" },
-                      { field: "end_date", headerName: "Конец срока пребывания" },
-                    ],
-                    fields: [
-                      { name: "series", label: "Серия", type: "number", required: true },
-                      { name: "number", label: "Номер", type: "number", required: true },
-                      { name: "start_date", label: "Начало срока пребывания", type: "date", required: true },
-                      { name: "end_date", label: "Конец срока пребывания", type: "date" }
-                    ],
-                    api: {
-                      getAll: migrationCardApi.getAll,
-                      getById: migrationCardApi.getById,
-                      create: migrationCardApi.create,
-                      update: migrationCardApi.update,
-                      delete: migrationCardApi.delete,
-                    }, 
-                    displayFields: ["series", "number"] 
-                  }} 
-                />} 
+
+            <Route
+              path="migration_cards"
+              element={<DocumentsPage typeCode="migration_card" />}
             />
-            <Route path="/arrival_notifications" 
-              element={
-                <EntityPage 
-                  config={{
-                    title: "Уведомления о прибытии",
-                    endpoint: `${api}/api/arrival_notifications`,
-                    columns: [
-                      { field: "student", headerName: "Владелец" },
-                    ],
-                    fields: [
-                      { name: "student", label: "Владелец", type: "string", required: true },
-                    ],
-                    api: {
-                      getAll: arrivalNoticeApi.getAll,
-                      getById: arrivalNoticeApi.getById,
-                      create: arrivalNoticeApi.create,
-                      update: arrivalNoticeApi.update,
-                      delete: arrivalNoticeApi.delete,
-                    },  
-                    displayFields: ["student"]
-                  }} 
-                />} 
+
+            <Route
+              path="arrival_notifications"
+              element={<DocumentsPage typeCode="arrival_notice" />}
             />
-            <Route path="/education_agreements" 
-              element={
-                <EntityPage 
-                  config={{
-                    title: "Договоры об образовании",
-                    endpoint: `${api}/api/education_agreements`,
-                    columns: [
-                      { field: "number", headerName: "Номер" },
-                    ],
-                    fields: [
-                      { name: "number", label: "Номер", type: "number", required: true },
-                    ],
-                    api: {
-                      getAll:  eduAgreementApi.getAll,
-                      getById: eduAgreementApi.getById,
-                      create: eduAgreementApi.create,
-                      update: eduAgreementApi.update,
-                      delete: eduAgreementApi.delete,
-                    }, 
-                    displayFields: ["number"]
-                  }} 
-                />} 
+
+            <Route
+              path="education_agreements"
+              element={<DocumentsPage typeCode="edu_agreement" />}
             />
-            <Route path="/termination_notifications" 
-              element={
-                <EntityPage 
-                  config={{
-                    title: "Уведомления о предоставлении академического отпуска, {'\n'} о завершении или досрочном прекращении обучения",
-                    endpoint: `${api}/api/termination_notifications`,
-                    columns: [
-                      { field: "district", headerName: "Район УМВД" },
-                      { field: "object", headerName: "Цель подачи" },
-                      { field: "reason", headerName: "Основание" }
-                    ],
-                    fields: [
-                      { name: "district", label: "Район УМВД", type: "select", options:[
-                          {value: "Адмиралтейскому", label: "Адмиралтейский"},
-                          {value: "Выборгскому", label: "Выборгский"},
-                        ]
-                      },
-                      { name: "object", label: "Цель подачи", type: "string", required: true },
-                      { name: "reason", label: "Основание", type: "string", required: true }
-                    ],
-                    api: {
-                      getAll: termNoticeApi.getAll,
-                      getById: termNoticeApi.getById,
-                      create: termNoticeApi.create,
-                      update: termNoticeApi.update,
-                      delete: termNoticeApi.delete,
-                    }, 
-                    displayFields: ["district", "object"]
-                  }} 
-                />} 
+
+            <Route
+              path="termination_notifications"
+              element={<DocumentsPage typeCode="term_notice" />}
             />
           <Route index element={<Navigate to="students" />} />
         </Route>
