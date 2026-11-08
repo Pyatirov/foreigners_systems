@@ -1,24 +1,29 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from "@mui/material";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+} from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
-import "dayjs/locale/ru"; 
+import "dayjs/locale/ru";
 import type { Entity } from "../../../types/entities";
-import React from "react";
 import type { EntityFormProps } from "./EntityForm.types";
 import { renderField } from "./EntityForm.utils";
 
 dayjs.locale("ru");
 
 export const EntityForm = <T extends Entity>({
-  open,                                           // открытие формы                        
-  onClose,                                        // функция закрытия формы
-  onSubmit,                                       // функция отправки данных формы                  
-  config,                                         // конфигурация полей формы                         
-  photoFile,                                      // текущий файл фотографии (если есть)
-  onPhotoChange,                                  // функция для обновления файла фотографии                   
-  editingItem,                                    // редактируемый элемент (если есть)                  
+  open,
+  onClose,
+  onSubmit,
+  config,
+  photoFile,
+  onPhotoChange,
+  editingItem,
 }: EntityFormProps<T>) => {
   const [form, setForm] = useState<Partial<T>>({});
 
@@ -30,23 +35,26 @@ export const EntityForm = <T extends Entity>({
     }
   }, [open, editingItem]);
 
-  const handleChange = (name: keyof T, value: any) => {
-    setForm( prev => ({ ...prev, [name]: value }));
+  const handleChange = (name: keyof T, value: unknown) => {
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleClear = (name: keyof T) => {
-    setForm( prev => ({ ...prev, [name]: "" }));
+    setForm((prev) => ({ ...prev, [name]: "" }));
   };
 
-  const preparedFormData = (form: any): any => ({
-    ...form,
-    ...(form.sex !== undefined && {
-      sex: form.sex === "М" ? true : form.sex === "Ж" ? false : form.sex
-    })
-  });
+  const preparedFormData = (value: Partial<T>): Partial<T> => {
+    const data = { ...value } as Record<string, unknown>;
+    if (data.sex !== undefined) {
+      data.sex = data.sex === "М" ? true : data.sex === "Ж" ? false : data.sex;
+    }
+    return data as Partial<T>;
+  };
+
   const handleSubmit = () => {
+    // Не очищаем форму сразу: если API вернёт ошибку валидации,
+    // пользователь сможет исправить данные, не заполняя всё заново.
     onSubmit(preparedFormData(form), photoFile || undefined);
-    setForm({});
   };
 
   const handleClose = () => {
@@ -63,12 +71,16 @@ export const EntityForm = <T extends Entity>({
 
         <DialogContent>
           {config.fields.map((field) => (
-            <React.Fragment key={String(field.name)}>
-              {renderField(field, form, { handleChange, handleClear, onPhotoChange }, photoFile)}
-            </React.Fragment>
+            <div key={String(field.name)}>
+              {renderField(
+                field,
+                form,
+                { handleChange, handleClear, onPhotoChange },
+                photoFile
+              )}
+            </div>
           ))}
         </DialogContent>
-
 
         <DialogActions sx={{ mr: 4, mb: 1 }}>
           <Button onClick={handleClose}>Отмена</Button>
