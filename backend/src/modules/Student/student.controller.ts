@@ -1,141 +1,149 @@
 import type { Request, Response } from "express";
-import { Student } from "@/modules/Student/student.model.js";
-import { getStudentsSortedByCreatedAt } from "@/services/item.service.js";
+import {
+  createStudent as createStudentRecord,
+  deleteStudent as deleteStudentRecord,
+  findStudentById,
+  listStudents,
+  StudentConflictError,
+  StudentValidationError,
+  updateStudent as updateStudentRecord,
+} from "@/modules/Student/student.service.js";
 
-export const getStudents = async (req: Request, res: Response) => {
-  try {
-    // Забираем из запроса параметры пагинации, поиска и фильтры через деструктуризацию
-    const { page = 1, limit = 10, search, ...filters } = req.query;
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-    // Строим запрос к MongoDB
-    const query: Record<string, any> = {};
+function queryString(value: unknown): string | undefined {
+  return typeof value === "string" ? value : undefined;
+}
 
-    // Поиск по имени/фамилии
-    if (search) {
-      // Используем $or для поиска по нескольким полям
-      query.$or = [
-        // Проверяем вхождение строки поиска хоты бы в firstname, lastname или middlename (регистронезависимо), где
-        // $regex - для поиска по шаблону, $options: "i" - для игнорирования регистра
-        { firstname: { $regex: search, $options: "i" } },
-        { lastname: { $regex: search, $options: "i" } },
-        { middlename: { $regex: search, $options: "i" } },
-      ];
-    }
+function isValidId(id: string): boolean {
+  return UUID_REGEX.test(id);
+}
 
-    // Остальные фильтры (country, sex и т.д.)
-    // Создаем из filters массив пар [ключ, значение] и проходим по ним циклом, 
-    // добавляя в запрос только те, у которых есть значение (не null и не пустая строка)
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value) query[key] = value;
-    });
-
-    // Парсим из строки числа для пагинации (из query они пришли строкой) и вычисляем skip
-    const pageNum  = Number(page);
-    const limitNum = Number(limit);
-    const skip     = (pageNum - 1) * limitNum;
-
-    // Выполняем запрос к базе: сначала получаем отфильтрованные и отсортированные данные с пагинацией,
-    // а параллельно считаем общее количество таких записей для фронта (для отображения общего количества страниц)
-    const [items, total] = await Promise.all([
-      Student.find(query).sort({ createdAt: -1 }).skip(skip).limit(limitNum),
-      Student.countDocuments(query),
-    ]);
-
-    res.json({ items, total });
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching students", error });
+function handleError(res: Response, error: unknown, context: string): void {
+  if (error instanceof StudentValidationError) {
+    res.status(400).json({ message: error.message });
+    return;
   }
-};
 
-export const getStudentById = async (req: Request, res: Response) => {
+  if (error instanceof StudentConflictError) {
+    res.status(409).json({ message: error.message });
+    return;
+  }
+
+  const dbError = error as { code?: string; message?: string };
+  if (["22P02", "22007", "22008", "23502", "23514"].includes(dbError?.code ?? "")) {
+    res.status(400).json({ message: "Некорректные данные студента" });
+    return;
+  }
+
+  console.error(`${context}:`, error);
+  res.status(500).json({ message: "Внутренняя ошибка сервера" });
+}
+
+export async function getStudents(req: Request, res: Response): Promise<void> {
   try {
-    const student = await Student.findById(req.params.id);
+    const page = Number(queryString(req.query.page) ?? 1);
+    const limit = Number(queryString(req.query.limit) ?? 10);
+    const search = queryString(req.query.search);
 
+    const filters: Record<string, unknown> = { ...req.query };
+    delete filters.page;
+    delete filters.limit;
+    delete filters.search;
+
+    const result = await listStudents({ page, limit, search, filters });
+    res.json(result);
+  } catch (error) {
+    handleError(res, error, "GET /api/students failed");
+  }
+}
+
+export async function getStudentById(req: Request, res: Response): Promise<void> {
+  const { id } = req.params;
+  if (!isValidId(id)) {
+    res.status(400).json({ message: "Некорректный идентификатор студента" });
+    return;
+  }
+
+  try {
+    const student = await findStudentById(id);
     if (!student) {
-      return res.status(404).json({ message: "Student not found" });
+      res.status(404).json({ message: "Студент не найден" });
+      return;
     }
 
     res.json(student);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching student", error });
+    handleError(res, error, "GET /api/students/:id failed");
   }
-};
+}
 
-export const createStudent = async (req: Request, res: Response) => {
+export async function createStudent(req: Request, res: Response): Promise<void> {
   try {
-    console.log("CREATE STUDENT BODY:", req.body);
+    const body = { ...req.body } as Record<string, unknown>;
 
-    const { photoUrl, ...data } = req.body;
-
-    // If a file was uploaded, use the file path; otherwise use provided photoUrl
-    if (req.file) {
-      data.photoUrl = `/uploads/photos/${req.file.filename}`;
-    } else if (typeof photoUrl === "string" && photoUrl.trim() !== "") {
-      data.photoUrl = photoUrl;
+    // Сохранение уже загруженного фото поддерживается, если маршрут
+    // подключён к существующему Multer middleware.
+    const uploadedFile = (req as Request & { file?: { filename: string } }).file;
+    if (uploadedFile?.filename) {
+      body.photoUrl = `/uploads/photos/${uploadedFile.filename}`;
     }
 
-    const newStudent = new Student(data);
-    await newStudent.save();
-
-    res.status(201).json(newStudent);
-  } catch (error: any) {
-    console.error("CREATE STUDENT ERROR:", error);
-    res.status(400).json({ message: error.message });
+    const student = await createStudentRecord(body);
+    res.status(201).json(student);
+  } catch (error) {
+    handleError(res, error, "POST /api/students failed");
   }
-};
+}
 
+export async function updateStudent(req: Request, res: Response): Promise<void> {
+  const { id } = req.params;
+  if (!isValidId(id)) {
+    res.status(400).json({ message: "Некорректный идентификатор студента" });
+    return;
+  }
 
-// Обновление студента
-export const updateStudent = async (req: Request, res: Response) => {
   try {
-    console.log("UPDATE BODY:", req.body);
+    const body = { ...req.body } as Record<string, unknown>;
+    delete body.id;
+    delete body._id;
+    delete body.createdAt;
+    delete body.updatedAt;
+    delete body.__v;
 
-    const {
-      _id,
-      __v,
-      createdAt,
-      updatedAt,
-      photoUrl,
-      ...data
-    } = req.body;
-
-    // If a file was uploaded, use the file path
-    if (req.file) {
-      data.photoUrl = `/uploads/photos/${req.file.filename}`;
-    } else if (photoUrl && typeof photoUrl === "string") {
-      data.photoUrl = photoUrl;
+    const uploadedFile = (req as Request & { file?: { filename: string } }).file;
+    if (uploadedFile?.filename) {
+      body.photoUrl = `/uploads/photos/${uploadedFile.filename}`;
     }
 
-    const updated = await Student.findByIdAndUpdate(
-      req.params.id,
-      data,
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
-
-    if (!updated) {
-      return res.status(404).json({ message: "Student not found" });
+    const student = await updateStudentRecord(id, body);
+    if (!student) {
+      res.status(404).json({ message: "Студент не найден" });
+      return;
     }
 
-    res.json(updated);
-  } catch (error: any) {
-    console.error("UPDATE ERROR:", error);
-    res.status(400).json({ message: error.message });
+    res.json(student);
+  } catch (error) {
+    handleError(res, error, "PATCH /api/students/:id failed");
   }
-};
+}
 
+export async function deleteStudent(req: Request, res: Response): Promise<void> {
+  const { id } = req.params;
+  if (!isValidId(id)) {
+    res.status(400).json({ message: "Некорректный идентификатор студента" });
+    return;
+  }
 
-// Удаление студента
-export const deleteStudent = async (req: Request, res: Response) => {
   try {
-    const deleted = await Student.findByIdAndDelete(req.params.id);
-
-    if (!deleted) return res.status(404).json({ message: "Student not found" });
+    const deleted = await deleteStudentRecord(id);
+    if (!deleted) {
+      res.status(404).json({ message: "Студент не найден" });
+      return;
+    }
 
     res.sendStatus(204);
   } catch (error) {
-    res.status(500).json({ message: "Error deleting student", error });
+    handleError(res, error, "DELETE /api/students/:id failed");
   }
-};
+}
